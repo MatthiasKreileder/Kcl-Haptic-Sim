@@ -14,14 +14,16 @@ namespace ns3 {
 NS_LOG_COMPONENT_DEFINE ("HapticHeader");
 
 HapticHeader::HapticHeader() {
+	NS_LOG_FUNCTION(this);
 }
 
 HapticHeader::~HapticHeader() {
-	// TODO Auto-generated destructor stub
+	NS_LOG_FUNCTION(this);
 }
 
-void HapticHeader::setPayload(std::string payload){
-	m_hapticMessage = payload;
+void HapticHeader::SetHapticMessage(std::string hapticMessage){
+	NS_LOG_FUNCTION(hapticMessage);
+	m_hapticMessage = hapticMessage;
 }
 
 TypeId
@@ -37,13 +39,17 @@ HapticHeader::GetTypeId (void)
 TypeId
 HapticHeader::GetInstanceTypeId (void) const
 {
-  return HapticHeader::GetTypeId ();
+  return GetTypeId ();
 }
 
 uint32_t
 HapticHeader::GetSerializedSize (void) const
 {
   NS_LOG_FUNCTION (this);
+  //
+  //	The first four bytes indicate the lenght of the string that
+  //	follows the first uint32_t
+  //
   return 4 + GetStringLength();
 }
 
@@ -54,6 +60,7 @@ HapticHeader::Serialize (Buffer::Iterator start) const
 	NS_LOG_DEBUG("String to serialize: " << m_hapticMessage);
 
 	Buffer::Iterator bufIt = start;
+	NS_LOG_DEBUG("Writing a string of size [bytes]: " << GetSerializedSize() - 4);
 	bufIt.WriteHtonU32 (GetSerializedSize() - 4);
 
 	for(std::string::size_type strIt = 0; strIt < m_hapticMessage.size(); strIt++){
@@ -69,6 +76,7 @@ HapticHeader::Deserialize (Buffer::Iterator start)
 	Buffer::Iterator bufIt = start;
 
 	uint32_t stringLength = bufIt.ReadNtohU32 ();
+	NS_LOG_DEBUG("Reading a string of size [bytes]: " << stringLength);
 	char payloadBuffer[stringLength + 1];
 	payloadBuffer[stringLength] = '\0';
 
@@ -85,7 +93,7 @@ HapticHeader::Deserialize (Buffer::Iterator start)
 
 void HapticHeader::Print (std::ostream &os) const
 {
-	os << m_hapticMessage << std::endl;
+	os <<  sizeof(uint32_t) << " " << m_hapticMessage << std::endl;
 }
 
 std::string HapticHeader::GetHapticMessage () const
