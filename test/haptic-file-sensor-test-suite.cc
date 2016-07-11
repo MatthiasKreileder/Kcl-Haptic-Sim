@@ -8,6 +8,30 @@
 
 using namespace ns3;
 
+class HapticFileSensorParseFileTestCase : public ns3::TestCase {
+public:
+	HapticFileSensorParseFileTestCase ();
+	virtual void DoRun (void);
+};
+
+HapticFileSensorParseFileTestCase::HapticFileSensorParseFileTestCase()
+	: ns3::TestCase ("ParsePositionDataFromFile")
+{
+}
+
+void
+HapticFileSensorParseFileTestCase::DoRun()
+{
+	//
+	//	Please note: This test depends on a valid input file with 19 lines
+	//
+	HapticFileSensor::SensorFileType type = HapticFileSensor::POSITION;
+	HapticFileSensor hfs ("src/Kcl-Haptic-Sim/test/test_pos.txt",type);
+	size_t numElements = hfs.GetData().size();
+
+	NS_TEST_ASSERT_MSG_EQ(numElements,19,"Parsing position data from file failed");
+}
+
 class HapticFileSensorParseLineTestCase : public ns3::TestCase {
 public:
 	HapticFileSensorParseLineTestCase ();
@@ -46,5 +70,6 @@ public:
     : TestSuite ("FileSensor", UNIT)
   {
     AddTestCase (new HapticFileSensorParseLineTestCase (), TestCase::QUICK);
+    AddTestCase( new HapticFileSensorParseFileTestCase (), TestCase::QUICK);
   }
 } g_hapticFileSensorTestSuite;
