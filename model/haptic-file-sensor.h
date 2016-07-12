@@ -5,7 +5,7 @@
 
 #include "ns3/core-module.h"
 
-#include "ns3/position-data-sample.h"
+#include "ns3/sensor-data-sample.h"
 
 namespace ns3 {
 
@@ -34,14 +34,14 @@ public:
 	HapticFileSensor(std::string fileName, HapticFileSensor::SensorFileType type);
 
 	/**
-	 * \returns A reference to the position data
+	 * \returns A reference to the sensor data
 	 */
-	std::queue<PositionDataSample>& GetData();
+	std::queue<SensorDataSample>& GetData();
 
 private:
 	void ReadPositionData(std::string fileName);
 
-	std::queue<PositionDataSample> m_posData;
+	std::queue<SensorDataSample> m_posData;
 };
 
 }

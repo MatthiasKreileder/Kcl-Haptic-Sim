@@ -24,7 +24,7 @@ void HapticFileSensor::ReadPositionData(std::string fileName){
 		while( getline(posFile,line)){
 			NS_LOG_DEBUG(line);
 
-			PositionDataSample pds (line);
+			SensorDataSample pds (line);
 			m_posData.push(pds);
 		}
 		posFile.close();
@@ -34,7 +34,7 @@ void HapticFileSensor::ReadPositionData(std::string fileName){
 	}
 }
 
-std::queue<PositionDataSample>& HapticFileSensor::GetData(){
+std::queue<SensorDataSample>& HapticFileSensor::GetData(){
 	return m_posData;
 }
 

@@ -1,6 +1,6 @@
 
 #include "ns3/haptic-file-sensor.h"
-#include "ns3/position-data-sample.h"
+#include "ns3/sensor-data-sample.h"
 #include "ns3/test.h"
 
 #include <string>
@@ -15,7 +15,7 @@ public:
 };
 
 HapticFileSensorParseFileTestCase::HapticFileSensorParseFileTestCase()
-	: ns3::TestCase ("ParsePositionDataFromFile")
+	: ns3::TestCase ("ParseSensorDataFromFile")
 {
 }
 
@@ -39,7 +39,7 @@ public:
 };
 
 HapticFileSensorParseLineTestCase::HapticFileSensorParseLineTestCase ()
-  : ns3::TestCase ("ParseLineConstructPositionDataSample")
+  : ns3::TestCase ("ParseLineConstructSensorDataSample")
 {
 }
 
@@ -54,11 +54,11 @@ HapticFileSensorParseLineTestCase::DoRun(){
 	expectedResult.push_back(0.20503);
 	expectedResult.push_back(-0.98147);
 
-	std::string positionDataAsString = "-0.1818099, 0.20503, -0.98147";
-	PositionDataSample pds(positionDataAsString);
+	std::string sensorDataAsString = "-0.1818099, 0.20503, -0.98147";
+	SensorDataSample pds(sensorDataAsString);
 
 	for(int i = 0; i < 3; i++)
-		NS_TEST_ASSERT_MSG_EQ_TOL(pds.getPositionDataVector()[i],expectedResult[i],0.01,"PositionDataSample constructor could not parse position string");
+		NS_TEST_ASSERT_MSG_EQ_TOL(pds.getSensorDataVector()[i],expectedResult[i],0.01,"SensorDataSample constructor could not parse sensor string");
 
 }
 

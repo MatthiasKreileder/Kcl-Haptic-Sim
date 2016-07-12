@@ -21,7 +21,7 @@ public:
 };
 
 HapticHeaderEncodingDecodingTestCase::HapticHeaderEncodingDecodingTestCase()
-	: ns3::TestCase ("ParsePositionDataFromFile")
+	: ns3::TestCase ("ParseSensorDataFromFile")
 {
 }
 
