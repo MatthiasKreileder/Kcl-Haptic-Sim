@@ -35,8 +35,15 @@ public:
 	 */
 	std::vector<double> getSensorDataVector();
 
+	/**
+	 * \return A copy of the sensor data stored as a string
+	 */
+	std::string getSensorDataString ();
+
 private:
 	std::vector<double> m_sensorData;
+
+	std::string m_sensorDataSample;
 };
 
 } /* namespace ns3 */
