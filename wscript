@@ -5,7 +5,9 @@ def build(bld):
     obj.source = [
        'model/haptic-file-sensor.cc',
        'model/sensor-data-sample.cc',
-       'model/haptic-header.cc'
+       'model/haptic-header.cc',
+       'model/haptic-operator.cc',
+       'helper/haptic-operator-helper.cc'
         ]
     obj.cxxflags = ['-std=c++11']
 
@@ -13,7 +15,8 @@ def build(bld):
     module_test.source = [
         'test/haptic-file-sensor-test-suite.cc',
         'test/haptic-header-test-suite.cc',
-        'test/sensor-data-sample-test-suite.cc'
+        'test/sensor-data-sample-test-suite.cc',
+        'test/haptic-operator-test-suite.cc'
         ]
 
     headers = bld(features='ns3header')
@@ -21,7 +24,9 @@ def build(bld):
     headers.source = [
        'model/haptic-file-sensor.h',
        'model/sensor-data-sample.h',
-       'model/haptic-header.h'
+       'model/haptic-header.h',
+       'model/haptic-operator.h',
+       'helper/haptic-operator-helper.h'
         ]
 
     
