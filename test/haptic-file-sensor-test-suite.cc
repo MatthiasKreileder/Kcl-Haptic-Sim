@@ -8,6 +8,37 @@
 
 using namespace ns3;
 
+class GetNextSensorDataSampleTestCase : public ns3::TestCase {
+public:
+	GetNextSensorDataSampleTestCase ();
+	virtual void DoRun (void);
+};
+
+GetNextSensorDataSampleTestCase::GetNextSensorDataSampleTestCase()
+	: ns3::TestCase("GetNextSensorDataSampleTestCase")
+{
+}
+
+void GetNextSensorDataSampleTestCase::DoRun(){
+	//
+	//	Please note: This test depends on a valid input file with 21 lines
+	//
+	HapticFileSensor::SensorFileType type = HapticFileSensor::FORCEFEEDBACK;
+	HapticFileSensor hfs ("src/Kcl-Haptic-Sim/test/test_force.txt",type);
+	size_t numElements = hfs.GetData().size();
+
+	// Let's on purpose try to extract one SensorDataSample too much
+
+	int retrievedSensorDataSamples = 0;
+	for(size_t i = 0; i < numElements + 1; i++){
+		SensorDataSample sds;
+		if(hfs.GetNextSensorDataSample(sds))
+			retrievedSensorDataSamples++;
+	}
+
+	NS_TEST_ASSERT_MSG_EQ(retrievedSensorDataSamples,21,"Retrieved unexpected number of SensorDataSemple objects");
+}
+
 class HapticFileSensorParseForceFeedbackFileTestCase : public ns3::TestCase {
 public:
 	HapticFileSensorParseForceFeedbackFileTestCase ();
@@ -91,10 +122,11 @@ static class HapticFileSensorTestSuite : public TestSuite
 {
 public:
 	HapticFileSensorTestSuite ()
-    : TestSuite ("FileSensor", UNIT)
+    : TestSuite ("HapticFileSensor", UNIT)
   {
     AddTestCase (new HapticFileSensorParseLineTestCase (), TestCase::QUICK);
-    AddTestCase( new HapticFileSensorParseFileTestCase (), TestCase::QUICK);
+    AddTestCase (new HapticFileSensorParseFileTestCase (), TestCase::QUICK);
     AddTestCase (new HapticFileSensorParseForceFeedbackFileTestCase (), TestCase::QUICK);
+    AddTestCase (new GetNextSensorDataSampleTestCase (), TestCase::QUICK);
   }
 } g_hapticFileSensorTestSuite;

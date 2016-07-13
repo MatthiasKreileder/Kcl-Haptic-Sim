@@ -44,6 +44,17 @@ SensorDataSample::SensorDataSample(std::string sensorDataSample) {
 	m_sensorData.push_back(z);
 }
 
+SensorDataSample::SensorDataSample(){
+	m_sensorData = std::vector<double>();
+	m_sensorDataSample = "";
+}
+
+void
+SensorDataSample::operator =(SensorDataSample& sds){
+	m_sensorData = sds.getSensorDataVector();
+	m_sensorDataSample = sds.getSensorDataString();
+}
+
 SensorDataSample::~SensorDataSample() {
 	// TODO Auto-generated destructor stub
 }

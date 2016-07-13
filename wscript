@@ -12,7 +12,8 @@ def build(bld):
     module_test = bld.create_ns3_module_test_library('Kcl-Haptic-Sim')
     module_test.source = [
         'test/haptic-file-sensor-test-suite.cc',
-        'test/haptic-header-test-suite.cc'
+        'test/haptic-header-test-suite.cc',
+        'test/sensor-data-sample-test-suite.cc'
         ]
 
     headers = bld(features='ns3header')

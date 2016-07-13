@@ -28,6 +28,17 @@ public:
 	 * \param SensorDataSample e.g. string sample = "-0.18180, -0.20503, -0.98147"
 	 */
 	SensorDataSample(std::string sensorDataSample);
+
+	/**
+	 * Creates a SensorDataSample object with all members set to null.
+	 */
+	SensorDataSample();
+
+	/**
+	 * Assignment operator
+	 */
+	void operator=(SensorDataSample& sds);
+
 	virtual ~SensorDataSample();
 
 	/**
