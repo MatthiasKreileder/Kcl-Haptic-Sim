@@ -21,7 +21,7 @@ public:
 	 */
 	enum FileType {
 		POSITION,
-		FORCEFEEBACK
+		FORCEFEEDBACK
 	};
 
 	typedef enum FileType SensorFileType;
@@ -38,10 +38,26 @@ public:
 	 */
 	std::queue<SensorDataSample>& GetData();
 
+	/**
+	 * Stores the next (in terms of the sequence they occured in the provided file)
+	 * SensorDataSample object in sds.
+	 *
+	 * \param sds The object where the next SensorDataSample in the internal queue will be stored
+	 *
+	 * \return true in case of success, false otherwise (e.g. queue empty)
+	 */
+	bool GetNextSensorDataSample(SensorDataSample& sds);
+
 private:
 	void ReadPositionData(std::string fileName);
 
+	void ReadForceFeedbackData(std::string fileName);
+
 	std::queue<SensorDataSample> m_posData;
+
+	std::queue<SensorDataSample> m_forceData;
+
+	enum FileType m_fileType;
 };
 
 }

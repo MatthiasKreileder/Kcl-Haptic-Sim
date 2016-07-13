@@ -11,6 +11,8 @@ namespace ns3 {
 
 SensorDataSample::SensorDataSample(std::string sensorDataSample) {
 
+	m_sensorDataSample = sensorDataSample;
+
 	//
 	//	We assume three dimensional, comma separated sensor data here:
 	//	"-0.18180, -0.20503, -0.98147"
@@ -49,6 +51,11 @@ SensorDataSample::~SensorDataSample() {
 std::vector<double>
 SensorDataSample::getSensorDataVector(){
 	return m_sensorData;
+}
+
+std::string
+SensorDataSample::getSensorDataString (){
+	return m_sensorDataSample;
 }
 
 } /* namespace ns3 */
