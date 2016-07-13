@@ -123,13 +123,20 @@ HapticOperator::StartApplication (void)
         }
     }
 
-  //m_socket->SetRecvCallback (MakeNullCallback<void, Ptr<Socket> > ());
   m_socket->SetRecvCallback (MakeCallback (&HapticOperator::HandleRead, this));
   m_socket->SetAllowBroadcast (true);
 
   m_hapticFileSensor = new HapticFileSensor(m_fileName,HapticFileSensor::POSITION);
 
   m_sendEvent = Simulator::Schedule (Seconds (0.0), &HapticOperator::Send, this);
+}
+
+void
+HapticOperator::StopApplication (void)
+{
+  NS_LOG_FUNCTION (this);
+  delete m_hapticFileSensor;
+  Simulator::Cancel (m_sendEvent);
 }
 
 void HapticOperator::HandleRead(Ptr<Socket> socket){
@@ -154,9 +161,6 @@ void HapticOperator::HandleRead(Ptr<Socket> socket){
 
 	      packet->RemoveAllPacketTags ();
 	      packet->RemoveAllByteTags ();
-
-//	      NS_LOG_LOGIC ("Echoing packet");
-//	      socket->SendTo (packet, 0, from);
 
 	      if (InetSocketAddress::IsMatchingType (from))
 	        {

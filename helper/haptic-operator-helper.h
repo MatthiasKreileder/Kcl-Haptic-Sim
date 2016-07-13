@@ -67,7 +67,7 @@ public:
   /**
    * \param c the nodes
    *
-   * Create one udp echo client application on each of the input nodes
+   * Create one HapticOperator application on each of the input nodes
    *
    * \returns the applications created, one application per input node.
    */

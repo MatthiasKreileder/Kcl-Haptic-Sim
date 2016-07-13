@@ -60,6 +60,7 @@ protected:
 private:
 
   virtual void StartApplication (void);
+  virtual void StopApplication (void);
 
   void HandleRead(Ptr<Socket> socket);
 
