@@ -6,11 +6,15 @@
  */
 
 #include "position-to-velocity-conversion.h"
+#include "ns3/log.h"
 
 namespace ns3 {
 
+NS_LOG_COMPONENT_DEFINE("PositionToVelocityConversion");
+
 std::deque<SensorDataSample>
 PositionToVelocityConversion::ConvertPositionToVelocity(std::deque<SensorDataSample>& positionDeque, const double interSampleSeconds){
+	NS_LOG_FUNCTION("interSampleSeconds: " << interSampleSeconds);
 
 	if(positionDeque.size() == 0){
 		std::deque<SensorDataSample> empty;
@@ -21,9 +25,13 @@ PositionToVelocityConversion::ConvertPositionToVelocity(std::deque<SensorDataSam
 	//positionDeque.push_front(SensorDataSample("0.0, 0.0, 0.0"));
 
 	/*
+	 * 	Formula used to calculate the velocity at time t
+	 * 	We assume an intial velocity of (0,0,0) i.e. the recording started when
+	 * 	the haptic device was not moving.
+	 *
 	 * 	  x[t] - x[t-1]
-	 * ------------------	= v[t]
-	 * interSamplePosition
+	 * 	------------------	= v[t]
+	 * 	interSamplePosition
 	 */
 	std::deque<SensorDataSample>::iterator toPosition = positionDeque.begin();
 	toPosition++;
