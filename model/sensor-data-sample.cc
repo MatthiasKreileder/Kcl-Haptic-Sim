@@ -7,6 +7,8 @@
 
 #include "sensor-data-sample.h"
 
+#include <sstream>
+
 namespace ns3 {
 
 SensorDataSample::SensorDataSample(std::string sensorDataSample) {
@@ -47,6 +49,18 @@ SensorDataSample::SensorDataSample(std::string sensorDataSample) {
 SensorDataSample::SensorDataSample(){
 	m_sensorData = std::vector<double>();
 	m_sensorDataSample = "";
+}
+
+SensorDataSample::SensorDataSample(double x, double y, double z){
+	std::vector<double> sensorDataVector;
+	sensorDataVector.push_back(x);
+	sensorDataVector.push_back(y);
+	sensorDataVector.push_back(z);
+	m_sensorData = sensorDataVector;
+
+	std::stringstream ss;
+	ss << x << ", " << y << ", " << z;
+	m_sensorDataSample = ss.str();
 }
 
 void

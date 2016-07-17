@@ -31,7 +31,7 @@ void HapticFileSensor::ReadPositionData(std::string fileName){
 			NS_LOG_DEBUG(line);
 
 			SensorDataSample pds (line);
-			m_posData.push(pds);
+			m_posData.push_back(pds);
 		}
 		posFile.close();
 	}
@@ -54,7 +54,7 @@ void HapticFileSensor::ReadForceFeedbackData(std::string fileName){
 			NS_LOG_DEBUG(line);
 
 			SensorDataSample pds (line);
-			m_forceData.push(pds);
+			m_forceData.push_back(pds);
 		}
 		forceFile.close();
 	}
@@ -63,7 +63,7 @@ void HapticFileSensor::ReadForceFeedbackData(std::string fileName){
 	}
 }
 
-std::queue<SensorDataSample>& HapticFileSensor::GetData(){
+std::deque<SensorDataSample>& HapticFileSensor::GetData(){
 
 	if(m_fileType == FileType::POSITION){
 		return m_posData;
@@ -80,7 +80,7 @@ bool HapticFileSensor::GetNextSensorDataSample(SensorDataSample& sds){
 
 		if(!m_posData.empty()){
 			sds = m_posData.front();
-			m_posData.pop();
+			m_posData.pop_front();
 			return true;
 		}
 		else{
@@ -92,7 +92,7 @@ bool HapticFileSensor::GetNextSensorDataSample(SensorDataSample& sds){
 		NS_ASSERT_MSG(m_fileType == FileType::FORCEFEEDBACK,"Un-known file type, options are: POSITION or FORCEFEEDBACK");
 		if(!m_forceData.empty()){
 			sds = m_forceData.front();
-			m_forceData.pop();
+			m_forceData.pop_front();
 			return true;
 		}
 		else{
