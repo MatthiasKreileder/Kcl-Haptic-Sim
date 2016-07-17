@@ -7,7 +7,8 @@ def build(bld):
        'model/sensor-data-sample.cc',
        'model/haptic-header.cc',
        'model/haptic-operator.cc',
-       'helper/haptic-operator-helper.cc'
+       'helper/haptic-operator-helper.cc',
+       'helper/position-to-velocity-conversion.cc'
         ]
     obj.cxxflags = ['-std=c++11']
 
@@ -16,7 +17,8 @@ def build(bld):
         'test/haptic-file-sensor-test-suite.cc',
         'test/haptic-header-test-suite.cc',
         'test/sensor-data-sample-test-suite.cc',
-        'test/haptic-operator-test-suite.cc'
+        'test/haptic-operator-test-suite.cc',
+        'test/position-to-velocity-conversion-test-suite.cc'
         ]
 
     headers = bld(features='ns3header')
@@ -26,7 +28,8 @@ def build(bld):
        'model/sensor-data-sample.h',
        'model/haptic-header.h',
        'model/haptic-operator.h',
-       'helper/haptic-operator-helper.h'
+       'helper/haptic-operator-helper.h',
+       'helper/position-to-velocity-conversion.h'
         ]
 
     

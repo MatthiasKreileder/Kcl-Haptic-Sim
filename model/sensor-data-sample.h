@@ -35,6 +35,12 @@ public:
 	SensorDataSample();
 
 	/**
+	 * Creates a SensorDataSample object from three double values.
+	 * Assembles a proper string representation of those values to enable a successful call to getSensorDataString()
+	 */
+	SensorDataSample(double x, double y, double z);
+
+	/**
 	 * Assignment operator
 	 */
 	void operator=(SensorDataSample& sds);
