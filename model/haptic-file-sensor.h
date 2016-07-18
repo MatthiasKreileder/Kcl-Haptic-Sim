@@ -9,7 +9,7 @@
 
 namespace ns3 {
 
-/** \brief Reads recorded sensor data from a file - can handle position and force data
+/** \brief Reads recorded sensor data from a file - can handle position, velocity and force data
  *
  */
 class HapticFileSensor
@@ -21,6 +21,7 @@ public:
 	 */
 	enum FileType {
 		POSITION,
+		VELOCITY,
 		FORCEFEEDBACK
 	};
 
@@ -29,14 +30,17 @@ public:
 	/**
 	 * \brief Reads the file and stores the data internally
 	 * \param fileName The name of the file which contains the recorded data
-	 * \param type options are: "position" or "force-feedback"
+	 * \param type indicates what type of data the file contains
 	 */
 	HapticFileSensor(std::string fileName, HapticFileSensor::SensorFileType type);
 
 	/**
+	 *
+	 * \param type Gets the all SensorDataSample objects for the specified type stored in a deque<T> container
+	 *
 	 * \returns A reference to the sensor data
 	 */
-	std::deque<SensorDataSample>& GetData();
+	std::deque<SensorDataSample>& GetData(SensorFileType type);
 
 	/**
 	 * Stores the next (in terms of the sequence they occured in the provided file)
@@ -46,18 +50,29 @@ public:
 	 *
 	 * \return true in case of success, false otherwise (e.g. deque empty)
 	 */
-	bool GetNextSensorDataSample(SensorDataSample& sds);
+	bool GetNextSensorDataSample(SensorDataSample& sds,SensorFileType type);
 
 private:
-	void ReadPositionData(std::string fileName);
 
-	void ReadForceFeedbackData(std::string fileName);
+	bool GetNextSensorDataSamplePriv(SensorDataSample& sds, std::deque<SensorDataSample>& sdsContainer);
+	//void ReadPositionData(std::string fileName);
+
+	//void ReadForceFeedbackData(std::string fileName);
+
+	void ReadSensorDataSamples(std::string fileName, std::deque<SensorDataSample>& sdsContainer);
 
 	std::deque<SensorDataSample> m_posData;
 
+	std::deque<SensorDataSample> m_velocityData;
+
 	std::deque<SensorDataSample> m_forceData;
 
-	enum FileType m_fileType;
+	/**
+	 * The time in seconds between two data samples
+	 */
+	double m_interSampleSeconds;
+
+	//enum FileType m_fileType;
 };
 
 }

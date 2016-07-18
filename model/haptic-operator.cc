@@ -48,8 +48,8 @@ HapticOperator::GetTypeId (void)
     .SetParent<Application> ()
     .SetGroupName("Applications")
     .AddConstructor<HapticOperator> ()
-    .AddAttribute ("Interval",
-                   "The time to wait between packets", TimeValue (Seconds (0.0001)),
+    .AddAttribute ("SamplingIntervalSeconds",
+                   "The time in seconds between two data samples.", TimeValue (Seconds (0.0001)),
                    MakeTimeAccessor (&HapticOperator::m_interval),
                    MakeTimeChecker ())
     .AddAttribute ("RemoteAddress",
@@ -67,6 +67,13 @@ HapticOperator::GetTypeId (void)
                    MakeStringAccessor (&HapticOperator::m_fileName),
                    MakeStringChecker()
 				   )
+	.AddAttribute ("FileType",
+                   "Indicates the type of the recorded data, candidates are: POSITION,VELOCITY.",
+                   StringValue ("POSITION"),
+                   MakeStringAccessor (&HapticOperator::m_fileType),
+                   MakeStringChecker()
+				   )
+
   ;
   return tid;
 }
@@ -126,7 +133,21 @@ HapticOperator::StartApplication (void)
   m_socket->SetRecvCallback (MakeCallback (&HapticOperator::HandleRead, this));
   m_socket->SetAllowBroadcast (true);
 
-  m_hapticFileSensor = new HapticFileSensor(m_fileName,HapticFileSensor::POSITION);
+
+  if(m_fileType.compare("POSITION") == 0){
+	  m_hapticSensorFileType = HapticFileSensor::POSITION;
+  }
+  else if (m_fileType.compare("VELOCITY") == 0){
+	  m_hapticSensorFileType = HapticFileSensor::VELOCITY;
+  }
+  else{
+	  NS_ASSERT_MSG(m_fileType.compare("FORCEFEEDBACK") == 0,"Un-known file type, options are: POSITION, VELOCITY or FORCEFEEDBACK");
+	  m_hapticSensorFileType = HapticFileSensor::FORCEFEEDBACK;
+  }
+
+  m_hapticFileSensor = new HapticFileSensor(m_fileName,m_hapticSensorFileType);
+
+
 
   m_sendEvent = Simulator::Schedule (Seconds (0.0), &HapticOperator::Send, this);
 }
@@ -184,7 +205,9 @@ HapticOperator::Send (void)
   NS_ASSERT (m_sendEvent.IsExpired ());
 
   SensorDataSample sds;
-  if(m_hapticFileSensor->GetNextSensorDataSample(sds)){
+  // on the HapticOperator side we want to send velocity samples
+  // ToDo: Think about sending Velocity + Position samples
+  if(m_hapticFileSensor->GetNextSensorDataSample(sds,HapticFileSensor::VELOCITY)){
 
 	  //
 	  //	We made it here => there is still data to send

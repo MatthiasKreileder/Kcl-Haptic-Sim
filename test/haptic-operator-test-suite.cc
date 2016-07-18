@@ -31,6 +31,8 @@
 
 namespace ns3 {
 
+NS_LOG_COMPONENT_DEFINE("HapticOperatorTest");
+
 class HapticOperatorBaseTestCase : public ns3::TestCase {
 public:
 	HapticOperatorBaseTestCase ();
@@ -109,7 +111,8 @@ HapticOperatorBaseTestCase::DoRun()
 	  Time interPacketInterval = Seconds (0.0001);
 	  HapticOperatorHelper client (serverAddress, port);
 	  client.SetAttribute ("FileName", StringValue ("src/Kcl-Haptic-Sim/test/test_pos.txt"));
-	  client.SetAttribute ("Interval", TimeValue (interPacketInterval));
+	  client.SetAttribute ("SamplingIntervalSeconds", TimeValue (interPacketInterval));
+	  client.SetAttribute ("FileType", StringValue ("POSITION"));
 	  apps = client.Install (n.Get (0));
 	  apps.Start (Seconds (2.0));
 	  apps.Stop (Seconds (10.0));
