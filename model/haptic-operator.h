@@ -76,6 +76,8 @@ private:
 
   HapticFileSensor* m_hapticFileSensor;	//!< The interface to the recorded data
   std::string m_fileName;
+  std::string m_fileType; //!< Indicates what type of data the provided file contains
+  HapticFileSensor::FileType m_hapticSensorFileType;
 
   Ptr<Socket> m_socket; //!< Socket
   EventId m_sendEvent; //!< Event to send the next packet

@@ -1,6 +1,6 @@
 
 #include "haptic-file-sensor.h"
-
+#include "../helper/position-to-velocity-conversion.h"
 #include <fstream>
 
 namespace ns3 {
@@ -10,37 +10,29 @@ NS_LOG_COMPONENT_DEFINE ("HapticFileSensor");
 HapticFileSensor::HapticFileSensor(std::string fileName, HapticFileSensor::SensorFileType type){
 	NS_LOG_FUNCTION(this << "Filename: " << fileName << " Type: " << type);
 
-	m_fileType = type;
+	m_posData = std::deque<SensorDataSample>();
+	m_velocityData = std::deque<SensorDataSample>();
+	m_forceData = std::deque<SensorDataSample>();
 
 	if (type == FileType::POSITION){
-		ReadPositionData(fileName);
+		ReadSensorDataSamples(fileName,m_posData);
+		m_velocityData = PositionToVelocityConversion::ConvertPositionToVelocity(m_posData,m_interSampleSeconds);
+	}
+	else if(type == FileType::VELOCITY){
+		ReadSensorDataSamples(fileName,m_velocityData);
 	}
 	else{
-		ReadForceFeedbackData(fileName);
+		NS_ASSERT_MSG(type == FileType::FORCEFEEDBACK,"Un-known file type, options are: POSITION, VELOCITY or FORCEFEEDBACK");
+		ReadSensorDataSamples(fileName,m_forceData);
 	}
+
+	NS_LOG_DEBUG("Position Container elements: " << m_posData.size());
+	NS_LOG_DEBUG("Velocity Container elements: " << m_velocityData.size());
+	NS_LOG_DEBUG("Force Container elements: " << m_forceData.size());
+
 }
 
-void HapticFileSensor::ReadPositionData(std::string fileName){
-	NS_LOG_FUNCTION("Filename: " << fileName);
-
-	std::ifstream posFile (fileName);
-
-	if (posFile.is_open()){
-		std::string line;
-		while( getline(posFile,line)){
-			NS_LOG_DEBUG(line);
-
-			SensorDataSample pds (line);
-			m_posData.push_back(pds);
-		}
-		posFile.close();
-	}
-	else {
-		NS_LOG_ERROR("Unable to open file");
-	}
-}
-
-void HapticFileSensor::ReadForceFeedbackData(std::string fileName){
+void HapticFileSensor::ReadSensorDataSamples(std::string fileName, std::deque<SensorDataSample>& sdsContainer){
 	NS_LOG_FUNCTION("Filename: " << fileName);
 	/*
 	 * At the moment it looks like the force feedback can be parsed
@@ -54,7 +46,7 @@ void HapticFileSensor::ReadForceFeedbackData(std::string fileName){
 			NS_LOG_DEBUG(line);
 
 			SensorDataSample pds (line);
-			m_forceData.push_back(pds);
+			sdsContainer.push_back(pds);
 		}
 		forceFile.close();
 	}
@@ -63,41 +55,45 @@ void HapticFileSensor::ReadForceFeedbackData(std::string fileName){
 	}
 }
 
-std::deque<SensorDataSample>& HapticFileSensor::GetData(){
-
-	if(m_fileType == FileType::POSITION){
+std::deque<SensorDataSample>& HapticFileSensor::GetData(SensorFileType type){
+	NS_LOG_FUNCTION(type);
+	if(type == FileType::POSITION){
+		NS_LOG_DEBUG("Returning position deque");
 		return m_posData;
 	}
-
+	else if(type == FileType::VELOCITY){
+		NS_LOG_DEBUG("Returning velocity deque");
+		return m_velocityData;
+	}
 	else{
-		NS_ASSERT_MSG(m_fileType == FileType::FORCEFEEDBACK,"Un-known file type, options are: POSITION or FORCEFEEDBACK");
+		NS_ASSERT_MSG(type == FileType::FORCEFEEDBACK,"Un-known file type, options are: POSITION, VELOCITY or FORCEFEEDBACK");
+		NS_LOG_DEBUG("Returning force deque");
 		return m_forceData;
 	}
 }
 
-bool HapticFileSensor::GetNextSensorDataSample(SensorDataSample& sds){
-	if(m_fileType == FileType::POSITION){
-
-		if(!m_posData.empty()){
-			sds = m_posData.front();
-			m_posData.pop_front();
-			return true;
-		}
-		else{
-			return false;
-		}
+bool HapticFileSensor::GetNextSensorDataSample(SensorDataSample& sds,SensorFileType type){
+	NS_LOG_FUNCTION(type);
+	if (type == FileType::POSITION){
+		return GetNextSensorDataSamplePriv(sds,m_posData);
 	}
-
+	else if(type == FileType::VELOCITY){
+		return GetNextSensorDataSamplePriv(sds,m_velocityData);
+	}
 	else{
-		NS_ASSERT_MSG(m_fileType == FileType::FORCEFEEDBACK,"Un-known file type, options are: POSITION or FORCEFEEDBACK");
-		if(!m_forceData.empty()){
-			sds = m_forceData.front();
-			m_forceData.pop_front();
-			return true;
-		}
-		else{
-			return false;
-		}
+		return GetNextSensorDataSamplePriv(sds,m_forceData);
+	}
+}
+
+bool HapticFileSensor::GetNextSensorDataSamplePriv(SensorDataSample& sds, std::deque<SensorDataSample>& sdsContainer){
+	NS_LOG_FUNCTION(this);
+	if(!sdsContainer.empty()){
+		sds = sdsContainer.front();
+		sdsContainer.pop_front();
+		return true;
+	}
+	else{
+		return false;
 	}
 }
 
