@@ -55,9 +55,6 @@ public:
 private:
 
 	bool GetNextSensorDataSamplePriv(SensorDataSample& sds, std::deque<SensorDataSample>& sdsContainer);
-	//void ReadPositionData(std::string fileName);
-
-	//void ReadForceFeedbackData(std::string fileName);
 
 	void ReadSensorDataSamples(std::string fileName, std::deque<SensorDataSample>& sdsContainer);
 
@@ -71,8 +68,6 @@ private:
 	 * The time in seconds between two data samples
 	 */
 	double m_interSampleSeconds;
-
-	//enum FileType m_fileType;
 };
 
 }

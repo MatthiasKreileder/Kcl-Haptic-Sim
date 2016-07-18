@@ -32,49 +32,6 @@ HapticFileSensor::HapticFileSensor(std::string fileName, HapticFileSensor::Senso
 
 }
 
-//void HapticFileSensor::ReadPositionData(std::string fileName){
-//	NS_LOG_FUNCTION("Filename: " << fileName);
-//
-//	std::ifstream posFile (fileName);
-//
-//	if (posFile.is_open()){
-//		std::string line;
-//		while( getline(posFile,line)){
-//			NS_LOG_DEBUG(line);
-//
-//			SensorDataSample pds (line);
-//			m_posData.push_back(pds);
-//		}
-//		posFile.close();
-//	}
-//	else {
-//		NS_LOG_ERROR("Unable to open file");
-//	}
-//}
-//
-//void HapticFileSensor::ReadForceFeedbackData(std::string fileName){
-//	NS_LOG_FUNCTION("Filename: " << fileName);
-//	/*
-//	 * At the moment it looks like the force feedback can be parsed
-//	 * just like the position data. See issue #6
-//	 */
-//	std::ifstream forceFile (fileName);
-//
-//	if (forceFile.is_open()){
-//		std::string line;
-//		while( getline(forceFile,line)){
-//			NS_LOG_DEBUG(line);
-//
-//			SensorDataSample pds (line);
-//			m_forceData.push_back(pds);
-//		}
-//		forceFile.close();
-//	}
-//	else {
-//		NS_LOG_ERROR("Unable to open file");
-//	}
-//}
-
 void HapticFileSensor::ReadSensorDataSamples(std::string fileName, std::deque<SensorDataSample>& sdsContainer){
 	NS_LOG_FUNCTION("Filename: " << fileName);
 	/*
@@ -101,13 +58,16 @@ void HapticFileSensor::ReadSensorDataSamples(std::string fileName, std::deque<Se
 std::deque<SensorDataSample>& HapticFileSensor::GetData(SensorFileType type){
 	NS_LOG_FUNCTION(type);
 	if(type == FileType::POSITION){
+		NS_LOG_DEBUG("Returning position deque");
 		return m_posData;
 	}
 	else if(type == FileType::VELOCITY){
+		NS_LOG_DEBUG("Returning velocity deque");
 		return m_velocityData;
 	}
 	else{
 		NS_ASSERT_MSG(type == FileType::FORCEFEEDBACK,"Un-known file type, options are: POSITION, VELOCITY or FORCEFEEDBACK");
+		NS_LOG_DEBUG("Returning force deque");
 		return m_forceData;
 	}
 }

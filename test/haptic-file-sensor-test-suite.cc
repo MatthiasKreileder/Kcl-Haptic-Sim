@@ -11,6 +11,33 @@ using namespace ns3;
 
 NS_LOG_COMPONENT_DEFINE("HapticFileSensorTest");
 
+class CheckSensorDataSampleContainers : public ns3::TestCase {
+public:
+	CheckSensorDataSampleContainers ();
+	virtual void DoRun (void);
+};
+
+CheckSensorDataSampleContainers::CheckSensorDataSampleContainers ()
+	: ns3::TestCase("CheckSensorDataSampleContainers")
+{
+}
+
+void CheckSensorDataSampleContainers::DoRun(){
+	NS_LOG_FUNCTION_NOARGS();
+	//
+	//	Please note: This test depends on a valid input file with 21 lines
+	//
+	HapticFileSensor::SensorFileType type = HapticFileSensor::POSITION;
+	HapticFileSensor hfs ("src/Kcl-Haptic-Sim/test/test_pos.txt",type);
+	size_t numPosElements = hfs.GetData(HapticFileSensor::POSITION).size();
+	size_t numVelElements = hfs.GetData(HapticFileSensor::VELOCITY).size();
+	size_t numForceElements = hfs.GetData(HapticFileSensor::FORCEFEEDBACK).size();
+
+	NS_TEST_ASSERT_MSG_EQ(numPosElements,19,"Wrong number of position data samples");
+	NS_TEST_ASSERT_MSG_EQ(numVelElements,19,"Wrong number of velocity data samples");
+	NS_TEST_ASSERT_MSG_EQ(numForceElements,0,"Wrong number of force data samples");
+}
+
 class GetNextSensorDataSampleTestCase : public ns3::TestCase {
 public:
 	GetNextSensorDataSampleTestCase ();
@@ -138,5 +165,6 @@ public:
     AddTestCase (new HapticFileSensorParseFileTestCase (), TestCase::QUICK);
     AddTestCase (new HapticFileSensorParseForceFeedbackFileTestCase (), TestCase::QUICK);
     AddTestCase (new GetNextSensorDataSampleTestCase (), TestCase::QUICK);
+    AddTestCase (new CheckSensorDataSampleContainers (), TestCase::QUICK);
   }
 } g_hapticFileSensorTestSuite;
