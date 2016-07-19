@@ -169,29 +169,13 @@ void HapticOperator::HandleRead(Ptr<Socket> socket){
 	    {
 	      if (InetSocketAddress::IsMatchingType (from))
 	        {
-	          NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s server received " << packet->GetSize () << " bytes from " <<
+	          NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s HapticOperator received " << packet->GetSize () << " bytes from " <<
 	                       InetSocketAddress::ConvertFrom (from).GetIpv4 () << " port " <<
 	                       InetSocketAddress::ConvertFrom (from).GetPort ());
 	        }
 	      else if (Inet6SocketAddress::IsMatchingType (from))
 	        {
-	          NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s server received " << packet->GetSize () << " bytes from " <<
-	                       Inet6SocketAddress::ConvertFrom (from).GetIpv6 () << " port " <<
-	                       Inet6SocketAddress::ConvertFrom (from).GetPort ());
-	        }
-
-	      packet->RemoveAllPacketTags ();
-	      packet->RemoveAllByteTags ();
-
-	      if (InetSocketAddress::IsMatchingType (from))
-	        {
-	          NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s server sent " << packet->GetSize () << " bytes to " <<
-	                       InetSocketAddress::ConvertFrom (from).GetIpv4 () << " port " <<
-	                       InetSocketAddress::ConvertFrom (from).GetPort ());
-	        }
-	      else if (Inet6SocketAddress::IsMatchingType (from))
-	        {
-	          NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s server sent " << packet->GetSize () << " bytes to " <<
+	          NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s HapticOperator received " << packet->GetSize () << " bytes from " <<
 	                       Inet6SocketAddress::ConvertFrom (from).GetIpv6 () << " port " <<
 	                       Inet6SocketAddress::ConvertFrom (from).GetPort ());
 	        }

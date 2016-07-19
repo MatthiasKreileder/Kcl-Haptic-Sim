@@ -9,6 +9,7 @@ def build(bld):
        'model/haptic-operator.cc',
        'model/haptic-tele-operator.cc',
        'helper/haptic-operator-helper.cc',
+       'helper/haptic-tele-operator-helper.cc',
        'helper/position-to-velocity-conversion.cc'
         ]
     obj.cxxflags = ['-std=c++11']
@@ -19,6 +20,7 @@ def build(bld):
         'test/haptic-header-test-suite.cc',
         'test/sensor-data-sample-test-suite.cc',
         'test/haptic-operator-test-suite.cc',
+        'test/haptic-tele-operator-test-suite.cc',
         'test/position-to-velocity-conversion-test-suite.cc'
         ]
 
@@ -31,6 +33,7 @@ def build(bld):
        'model/haptic-operator.h',
        'model/haptic-tele-operator.h',
        'helper/haptic-operator-helper.h',
+       'helper/haptic-tele-operator-helper.h',
        'helper/position-to-velocity-conversion.h'
         ]
 

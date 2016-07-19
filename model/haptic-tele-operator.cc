@@ -163,7 +163,9 @@ HapticTeleOperator::HandleRead (Ptr<Socket> socket)
 	   */
 	  if(!m_hapticOperatorAddressIsSet){
 		  m_hapticOperatorAddress = from;
+		  m_hapticOperatorAddressIsSet = true;
 		  m_readSensorDataEvent = Simulator::Schedule (Seconds (0.0), &HapticTeleOperator::ReadSensorData, this);
+		  ReadSensorData();
 	  }
 
 
@@ -186,7 +188,7 @@ void
 HapticTeleOperator::ReadSensorData ()
 {
 	  NS_LOG_FUNCTION (this);
-	  NS_ASSERT (m_readSensorDataEvent.IsExpired ());
+	  //NS_ASSERT (m_readSensorDataEvent.IsExpired ());
 
 	  SensorDataSample sds;
 	  // on the HapticOperator side we want to send velocity samples
@@ -195,6 +197,7 @@ HapticTeleOperator::ReadSensorData ()
 		  //
 		  //	We made it here => there is still data to send
 		  //
+		  NS_LOG_DEBUG("At time " << Simulator::Now ().GetSeconds () << " about to send force feedback");
 
 		  //
 		  //	Wrap it in a HapticHeader to prepare data to be
@@ -207,16 +210,19 @@ HapticTeleOperator::ReadSensorData ()
 		  p->AddHeader(hapticHeader);
 
 		  std::stringstream peerAddressStringStream;
-		  if (Ipv4Address::IsMatchingType (m_hapticOperatorAddress))
-		    {
-		      peerAddressStringStream << Ipv4Address::ConvertFrom (m_hapticOperatorAddress);
-		      SendPriv(m_socket,p,peerAddressStringStream.str());
-		    }
-		  else if (Ipv6Address::IsMatchingType (m_hapticOperatorAddress))
-		    {
-		      peerAddressStringStream << Ipv6Address::ConvertFrom (m_hapticOperatorAddress);
-		      SendPriv(m_socket6,p,peerAddressStringStream.str());
-		    }
+		  peerAddressStringStream << " " << InetSocketAddress::ConvertFrom ( m_hapticOperatorAddress).GetIpv4 ();
+		  SendPriv(m_socket,p,peerAddressStringStream.str());
+
+//		  if (Ipv4Address::IsMatchingType (m_hapticOperatorAddress))
+//		    {
+//		      peerAddressStringStream << Ipv4Address::ConvertFrom (m_hapticOperatorAddress);
+//		      SendPriv(m_socket,p,peerAddressStringStream.str());
+//		    }
+//		  else if (Ipv6Address::IsMatchingType (m_hapticOperatorAddress))
+//		    {
+//		      peerAddressStringStream << Ipv6Address::ConvertFrom (m_hapticOperatorAddress);
+//		      SendPriv(m_socket6,p,peerAddressStringStream.str());
+//		    }
 
 		      m_readSensorDataEvent = Simulator::Schedule (m_interval, &HapticTeleOperator::ReadSensorData, this);
 
@@ -227,7 +233,8 @@ HapticTeleOperator::ReadSensorData ()
 }
 
 void HapticTeleOperator::SendPriv (Ptr<Socket> socket, Ptr<Packet> p, std::string peerAddressString){
-	  if ((socket->Send (p)) >= 0)
+	NS_LOG_FUNCTION(this);
+	if ((socket->SendTo(p,0,m_hapticOperatorAddress)) >= 0)
 	    {
 	      NS_LOG_INFO ("TraceDelay TX to"
 	                                    << peerAddressString << " Uid: "
