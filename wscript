@@ -7,6 +7,7 @@ def build(bld):
        'model/sensor-data-sample.cc',
        'model/haptic-header.cc',
        'model/haptic-operator.cc',
+       'model/haptic-tele-operator.cc',
        'helper/haptic-operator-helper.cc',
        'helper/position-to-velocity-conversion.cc'
         ]
@@ -28,6 +29,7 @@ def build(bld):
        'model/sensor-data-sample.h',
        'model/haptic-header.h',
        'model/haptic-operator.h',
+       'model/haptic-tele-operator.h',
        'helper/haptic-operator-helper.h',
        'helper/position-to-velocity-conversion.h'
         ]
