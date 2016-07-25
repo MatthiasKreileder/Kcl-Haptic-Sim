@@ -7,6 +7,8 @@ def build(bld):
        'model/sensor-data-sample.cc',
        'model/haptic-header.cc',
        'model/haptic-operator.cc',
+       'model/data-reduction-algorithm.cc',
+       'model/no-data-reduction-algorithm.cc',
        'helper/haptic-operator-helper.cc',
        'helper/position-to-velocity-conversion.cc'
         ]
@@ -28,6 +30,8 @@ def build(bld):
        'model/sensor-data-sample.h',
        'model/haptic-header.h',
        'model/haptic-operator.h',
+       'model/data-reduction-algorithm.h',
+       'model/no-data-reduction-algorithm.h',
        'helper/haptic-operator-helper.h',
        'helper/position-to-velocity-conversion.h'
         ]
