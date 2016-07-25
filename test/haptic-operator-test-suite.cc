@@ -108,7 +108,7 @@ HapticOperatorBaseTestCase::DoRun()
 	// node one.
 	//
 
-	  Time interPacketInterval = Seconds (0.0001);
+	  Time interPacketInterval = Seconds (0.001);
 	  HapticOperatorHelper client (serverAddress, port);
 	  client.SetAttribute ("FileName", StringValue ("src/Kcl-Haptic-Sim/test/test_pos.txt"));
 	  client.SetAttribute ("SamplingIntervalSeconds", TimeValue (interPacketInterval));

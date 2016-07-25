@@ -98,7 +98,7 @@ HapticTeleOperatorBaseTestCase::DoRun()
 	//
 	// Create a UdpEchoServer application on node one.
 	//
-	  Time interPacketInterval = Seconds (0.0001);
+	  Time interPacketInterval = Seconds (0.001);
 	  uint16_t port = 9;  // well-known echo port number
 	  HapticTeleOperatorHelper server (port);
 	  server.SetAttribute("FileName", StringValue ("src/Kcl-Haptic-Sim/test/test_force.txt"));

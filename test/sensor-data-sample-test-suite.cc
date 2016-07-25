@@ -41,7 +41,7 @@ AssignmentOperator::DoRun()
 	std::vector<double> sensorVecCopy = sds.getSensorDataVector();
 
 	for(std::vector<double>::size_type i = 0; i < sensorVec.size(); i++)
-		NS_TEST_ASSERT_MSG_EQ_TOL(sensorVec[i],sensorVecCopy[i],0.01,"ibiubhui");
+		NS_TEST_ASSERT_MSG_EQ_TOL(sensorVec[i],sensorVecCopy[i],0.01,"Assignment Operator failed");
 
 	// std::string::compare returns 0 if the two strings compare equally
 	//int compareResult = dataAsString.compare(rxHeader.GetHapticMessage());
