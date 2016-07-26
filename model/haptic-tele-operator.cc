@@ -41,10 +41,10 @@ HapticTeleOperator::GetTypeId (void)
                    UintegerValue (9),
                    MakeUintegerAccessor (&HapticTeleOperator::m_port),
                    MakeUintegerChecker<uint16_t> ())
-	.AddAttribute ("SamplingIntervalSeconds",
-                   "The time in seconds between two data samples.", TimeValue (Seconds (0.0001)),
-                   MakeTimeAccessor (&HapticTeleOperator::m_interval),
-                   MakeTimeChecker ())
+    .AddAttribute ("SamplingIntervalSeconds",
+                   "The time in seconds between two data samples.", DoubleValue (0.0001),
+                   MakeDoubleAccessor (&HapticTeleOperator::m_interval),
+                   MakeDoubleChecker<double>())
     .AddAttribute ("FileName",
                    "The name of the file which contains the recorded haptic data.",
                    StringValue ("src/Kcl-Haptic-Sim/test/test_force.txt"),
@@ -122,7 +122,7 @@ HapticTeleOperator::StartApplication (void)
         }
     }
 
-  m_hapticFileSensor = new HapticFileSensor(m_fileName,HapticFileSensor::FORCEFEEDBACK);
+  m_hapticFileSensor = new HapticFileSensor(m_fileName,HapticFileSensor::FORCEFEEDBACK,m_interval);
 
   m_socket->SetRecvCallback (MakeCallback (&HapticTeleOperator::HandleRead, this));
   m_socket6->SetRecvCallback (MakeCallback (&HapticTeleOperator::HandleRead, this));
@@ -224,7 +224,7 @@ HapticTeleOperator::ReadSensorData ()
 //		      SendPriv(m_socket6,p,peerAddressStringStream.str());
 //		    }
 
-		      m_readSensorDataEvent = Simulator::Schedule (m_interval, &HapticTeleOperator::ReadSensorData, this);
+		      m_readSensorDataEvent = Simulator::Schedule (Seconds(m_interval), &HapticTeleOperator::ReadSensorData, this);
 
 	  }
 	  else{

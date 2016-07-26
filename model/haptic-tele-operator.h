@@ -72,7 +72,7 @@ private:
   bool m_hapticOperatorAddressIsSet;	//!< Is m_hapticOperatorAddress set to the Address of a HapticOperator
 
   HapticFileSensor* m_hapticFileSensor;	//!< The interface to the recorded data
-  Time m_interval; //!< Packet inter-send time
+  double m_interval; //!< Packet inter-send time
   std::string m_fileName; //!< holds the name (+ path) of the file which contains the recorded force feedback data samples
 
   EventId m_readSensorDataEvent;

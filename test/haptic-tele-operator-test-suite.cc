@@ -98,11 +98,11 @@ HapticTeleOperatorBaseTestCase::DoRun()
 	//
 	// Create a UdpEchoServer application on node one.
 	//
-	  Time interPacketInterval = Seconds (0.001);
+	  double interPacketInterval = 0.001;
 	  uint16_t port = 9;  // well-known echo port number
 	  HapticTeleOperatorHelper server (port);
 	  server.SetAttribute("FileName", StringValue ("src/Kcl-Haptic-Sim/test/test_force.txt"));
-	  server.SetAttribute ("SamplingIntervalSeconds", TimeValue (interPacketInterval));
+	  server.SetAttribute ("SamplingIntervalSeconds", DoubleValue (interPacketInterval));
 	  ApplicationContainer apps = server.Install (n.Get (1));
 	  apps.Start (Seconds (1.0));
 	  apps.Stop (Seconds (10.0));
@@ -117,7 +117,7 @@ HapticTeleOperatorBaseTestCase::DoRun()
 
 	  HapticOperatorHelper client (serverAddress, port);
 	  client.SetAttribute ("FileName", StringValue ("src/Kcl-Haptic-Sim/test/test_pos.txt"));
-	  client.SetAttribute ("SamplingIntervalSeconds", TimeValue (interPacketInterval));
+	  client.SetAttribute ("SamplingIntervalSeconds", DoubleValue (interPacketInterval));
 	  client.SetAttribute ("FileType", StringValue ("POSITION"));
 	  apps = client.Install (n.Get (0));
 	  apps.Start (Seconds (2.0));
