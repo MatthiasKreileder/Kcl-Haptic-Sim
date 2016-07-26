@@ -32,7 +32,7 @@ public:
 	 * \param fileName The name of the file which contains the recorded data
 	 * \param type indicates what type of data the file contains
 	 */
-	HapticFileSensor(std::string fileName, HapticFileSensor::SensorFileType type);
+	HapticFileSensor(std::string fileName, HapticFileSensor::SensorFileType type, double interSampleSeconds);
 
 	/**
 	 *
@@ -67,7 +67,7 @@ private:
 	/**
 	 * The time in seconds between two data samples
 	 */
-	double m_interSampleSeconds;
+	//double m_interSampleSeconds;
 };
 
 }

@@ -1,13 +1,9 @@
-/*
- * haptic-operator-test-suite.cc
- *
- *  Created on: 13 Jul 2016
- *      Author: matthias
- */
+
 
 #include "ns3/test.h"
 #include "../helper/haptic-operator-helper.h"
-#include "../model/haptic-operator.h"
+#include "../helper/chai3d-server-helper.h"
+#include "../model/chai3d-server.h"
 #include "ns3/packet.h"
 #include "ns3/log.h"
 
@@ -31,21 +27,21 @@
 
 namespace ns3 {
 
-NS_LOG_COMPONENT_DEFINE("HapticOperatorTest");
+NS_LOG_COMPONENT_DEFINE("Chai3dServerTest");
 
-class HapticOperatorBaseTestCase : public ns3::TestCase {
+class Chai3dServerBaseTestCase : public ns3::TestCase {
 public:
-	HapticOperatorBaseTestCase ();
+	Chai3dServerBaseTestCase ();
 	virtual void DoRun (void);
 };
 
-HapticOperatorBaseTestCase::HapticOperatorBaseTestCase()
-	: ns3::TestCase ("HapticOperatorBaseTestCase")
+Chai3dServerBaseTestCase::Chai3dServerBaseTestCase()
+	: ns3::TestCase ("Chai3dServerBaseTestCase")
 {
 }
 
 void
-HapticOperatorBaseTestCase::DoRun()
+Chai3dServerBaseTestCase::DoRun()
 {
 
 	//
@@ -97,21 +93,26 @@ HapticOperatorBaseTestCase::DoRun()
 	//
 	// Create a UdpEchoServer application on node one.
 	//
+	  double interPacketInterval = 0.01;
 	  uint16_t port = 9;  // well-known echo port number
-	  UdpEchoServerHelper server (port);
+	  Chai3dServerHelper server (port);
+	  //server.SetAttribute("FileName", StringValue ("src/Kcl-Haptic-Sim/test/test_force.txt"));
+	  //server.SetAttribute ("SamplingIntervalSeconds", TimeValue (interPacketInterval));
 	  ApplicationContainer apps = server.Install (n.Get (1));
 	  apps.Start (Seconds (1.0));
 	  apps.Stop (Seconds (10.0));
+
+
 
 	//
 	// Create a UdpEchoClient application to send UDP datagrams from node zero to
 	// node one.
 	//
 
-	  double interPacketInterval = 0.001;
+
 	  HapticOperatorHelper client (serverAddress, port);
 	  client.SetAttribute ("FileName", StringValue ("src/Kcl-Haptic-Sim/test/test_pos.txt"));
-	  client.SetAttribute ("SamplingIntervalSeconds", DoubleValue (interPacketInterval));
+	  client.SetAttribute ("SamplingIntervalSeconds", DoubleValue( interPacketInterval));
 	  client.SetAttribute ("FileType", StringValue ("POSITION"));
 	  apps = client.Install (n.Get (0));
 	  apps.Start (Seconds (2.0));
@@ -129,15 +130,15 @@ HapticOperatorBaseTestCase::DoRun()
 
 }
 
-static class HapticOperatorTestSuite : public TestSuite
+static class Chai3dServerTestSuite : public TestSuite
 {
 public:
-	HapticOperatorTestSuite ()
-    : TestSuite ("HapticOperator", EXAMPLE)
+	Chai3dServerTestSuite ()
+    : TestSuite ("Chai3dServer", EXAMPLE)
   {
-    AddTestCase (new HapticOperatorBaseTestCase (), TestCase::QUICK);
+    AddTestCase (new Chai3dServerBaseTestCase (), TestCase::QUICK);
   }
-} g_hapticOperatorTestSuite;
+} g_chai3dServerTestSuite;
 
 
 }

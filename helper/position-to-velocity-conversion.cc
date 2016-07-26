@@ -46,6 +46,8 @@ PositionToVelocityConversion::ConvertPositionToVelocity(std::deque<SensorDataSam
 		double v_z = (toPosition->getSensorDataVector()[2] - fromPosition->getSensorDataVector()[2]) / interSampleSeconds;
 		velocityDeque.push_back(SensorDataSample(v_x,v_y,v_z));
 
+		NS_LOG_DEBUG("v_x: " << v_x << " v_y " << v_y << " v_z " << v_z);
+
 		fromPosition++;
 		toPosition++;
 	}
