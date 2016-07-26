@@ -31,6 +31,7 @@ public:
 	 * \brief Reads the file and stores the data internally
 	 * \param fileName The name of the file which contains the recorded data
 	 * \param type indicates what type of data the file contains
+	 * \param interSampleSeconds the time (measured in seconds) between two sensor samples, e.g. 0.001 => 1ms
 	 */
 	HapticFileSensor(std::string fileName, HapticFileSensor::SensorFileType type, double interSampleSeconds);
 

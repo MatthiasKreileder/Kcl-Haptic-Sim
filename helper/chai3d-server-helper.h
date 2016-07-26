@@ -24,13 +24,13 @@ public:
    */
 	Chai3dServerHelper (uint16_t port);
 
-	  /**
-	   * Record an attribute to be set in each Application after it is is created.
-	   *
-	   * \param name the name of the attribute to set
-	   * \param value the value of the attribute to set
-	   */
-	  void SetAttribute (std::string name, const AttributeValue &value);
+  /**
+   * Record an attribute to be set in each Application after it is is created.
+   *
+   * \param name the name of the attribute to set
+   * \param value the value of the attribute to set
+   */
+  void SetAttribute (std::string name, const AttributeValue &value);
 
   /**
    * Create a HapticTeleOperator Application on the specified Node.

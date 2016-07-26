@@ -64,7 +64,10 @@ private:
 
   std::string m_chai3dWrapperProg;
   uint16_t m_port; //!< Port on which we listen for incoming packets.
+
   FILE* m_ns3ToChai3dServerStream;	//!< Write end of the pipe which connects ns-3 and the Chai3d-Wrapper
+  FILE* m_Chai3dServerToNs3Stream;	//!< Read end of the pipe which connects the Chai3d-Wrapper and ns-3
+
   Ptr<Socket> m_socket; //!< IPv4 Socket
   Address m_local; //!< local multicast address
 

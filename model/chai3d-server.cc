@@ -83,33 +83,51 @@ Chai3dServer::HandleRead (Ptr<Socket> socket)
 
 void
 Chai3dServer::Setup(){
-	 pid_t pid;
-	   int mypipe[2];
+	pid_t pid;
+	int ns3ToChai3DPipe[2];
+	int chai3DToNs3Pipe[2];
 
 	   /* Create the pipe. */
-	   if (pipe (mypipe))
+	   if (pipe (ns3ToChai3DPipe))
 	     {
 	       NS_ABORT_MSG("Pipe failed " << EXIT_FAILURE);
 	     }
+	   if (pipe (chai3DToNs3Pipe))
+	   {
+		   NS_ABORT_MSG("Pipe failed" << EXIT_FAILURE);
+	   }
 
 	   /* Create the child process. */
 	   pid = fork ();
 	   if (pid == (pid_t) 0)
 	     {
 		   NS_LOG_DEBUG("Launching haptic mock");
-		   close(mypipe[1]);
+
+		   //
+		   //	Close the write end
+		   //
+		   close(ns3ToChai3DPipe[1]);
+		   //
+		   //	Close the read end
+		   //
+		   close(chai3DToNs3Pipe[0]);
 
 		   //
 		   //	Preparing cmd arguments
 		   //
 		   std::ostringstream oss;
-		   oss << mypipe[0];
+		   oss << ns3ToChai3DPipe[0];
 		   std::string pipeArg = oss.str();
 
+		   std::ostringstream chai3DToNs3ArgStringStream;
+		   chai3DToNs3ArgStringStream << chai3DToNs3Pipe[1];
+		   std::string returnPipeArg = chai3DToNs3ArgStringStream.str();
+
 		   execl("/home/matthias/Development/Workspace/CHAI3D-Mock/Debug/CHAI3D-Mock",
-				   "/home/matthias/Development/Workspace/CHAI3D-Mock/Debug/CHAI3D-Mock",
-				   pipeArg.c_str(),
-				   NULL);
+				 "/home/matthias/Development/Workspace/CHAI3D-Mock/Debug/CHAI3D-Mock",
+				 pipeArg.c_str(),
+				 returnPipeArg.c_str(),
+				 NULL);
 
 		   NS_LOG_DEBUG("Launching haptic mock failed");
 	     }
@@ -122,11 +140,10 @@ Chai3dServer::Setup(){
 	     {
 	       /* This is the parent process.
 	          Close other end first. */
-	       close (mypipe[0]);
-	       //write_to_pipe (mypipe[1]);
-
-	       m_ns3ToChai3dServerStream = fdopen (mypipe[1], "w");
-
+	       close (ns3ToChai3DPipe[0]);
+	       close (chai3DToNs3Pipe[1]);
+	       m_ns3ToChai3dServerStream = fdopen (ns3ToChai3DPipe[1], "w");
+	       m_Chai3dServerToNs3Stream = fdopen (chai3DToNs3Pipe[0], "r");
 	     }
 
 }
