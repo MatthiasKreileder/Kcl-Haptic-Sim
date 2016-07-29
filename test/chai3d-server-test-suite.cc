@@ -43,7 +43,8 @@ Chai3dServerBaseTestCase::Chai3dServerBaseTestCase()
 void
 Chai3dServerBaseTestCase::DoRun()
 {
-
+	  GlobalValue::Bind ("SimulatorImplementationType", StringValue ("ns3::RealtimeSimulatorImpl"));
+	  GlobalValue::Bind ("ChecksumEnabled", BooleanValue (true));
 	//
 	// Allow the user to override any of the defaults and the above Bind() at
 	// run-time, via command-line arguments
@@ -93,7 +94,7 @@ Chai3dServerBaseTestCase::DoRun()
 	//
 	// Create a UdpEchoServer application on node one.
 	//
-	  double interPacketInterval = 0.01;
+	  double interPacketInterval = 0.001;
 	  uint16_t port = 9;  // well-known echo port number
 	  Chai3dServerHelper server (port);
 	  //server.SetAttribute("FileName", StringValue ("src/Kcl-Haptic-Sim/test/test_force.txt"));
@@ -111,7 +112,7 @@ Chai3dServerBaseTestCase::DoRun()
 
 
 	  HapticOperatorHelper client (serverAddress, port);
-	  client.SetAttribute ("FileName", StringValue ("src/Kcl-Haptic-Sim/test/test_pos.txt"));
+	  client.SetAttribute ("FileName", StringValue ("src/Kcl-Haptic-Sim/test/position.txt"));
 	  client.SetAttribute ("SamplingIntervalSeconds", DoubleValue( interPacketInterval));
 	  client.SetAttribute ("FileType", StringValue ("POSITION"));
 	  apps = client.Install (n.Get (0));
@@ -123,8 +124,9 @@ Chai3dServerBaseTestCase::DoRun()
 	//
 	// Now, do the actual simulation.
 	//
-
+	  Simulator::Stop(Seconds(30));
 	  Simulator::Run ();
+
 	  Simulator::Destroy ();
 
 

@@ -23,6 +23,7 @@ Chai3dServer::Chai3dServer() {
 	m_chai3dWrapperProg = "";
 	m_port = -1;
 	m_socket = 0;
+	m_nph = 0;
 }
 
 Chai3dServer::~Chai3dServer() {
@@ -75,59 +76,44 @@ Chai3dServer::HandleRead (Ptr<Socket> socket)
 
 	  std::string s = hapticHeader.GetHapticMessage();
 
-	  fprintf (m_ns3ToChai3dServerStream, s.c_str(),"%s");
-	  fprintf (m_ns3ToChai3dServerStream, "\n");
+	  NS_LOG_DEBUG("Sending haptic message to chai3d");
+	  m_nph->SafeWrite(s);
+
+	  std::string msg_from_chai3d;
+	  m_nph->SafeRead(msg_from_chai3d);
+	  NS_LOG_DEBUG("Received " << msg_from_chai3d);
+
 
     }
 }
 
 void
 Chai3dServer::Setup(){
+
+
+	/*
+	 * NS-3 and CHAI3-D will communicate via two uni-directional
+	 * FIFOs (named pipes).
+	 */
+    std::string ns3ToChai3DPipeName = "/home/matthias/Development/Learning-Named-Pipes/ns3ToChai3D";
+    std::string chai3dToNs3Pipe = "/home/matthias/Development/Learning-Named-Pipes/chai3dToNs3";
+
+    mkfifo(ns3ToChai3DPipeName.c_str(), 0666);
+    mkfifo(chai3dToNs3Pipe.c_str(), 0666);
+
 	pid_t pid;
-	int ns3ToChai3DPipe[2];
-	int chai3DToNs3Pipe[2];
 
-	   /* Create the pipe. */
-	   if (pipe (ns3ToChai3DPipe))
-	     {
-	       NS_ABORT_MSG("Pipe failed " << EXIT_FAILURE);
-	     }
-	   if (pipe (chai3DToNs3Pipe))
-	   {
-		   NS_ABORT_MSG("Pipe failed" << EXIT_FAILURE);
-	   }
+	/* Create the child process. */
+	pid = fork ();
+	if (pid == (pid_t) 0)
+	{
+		NS_LOG_DEBUG("Launching haptic mock");
 
-	   /* Create the child process. */
-	   pid = fork ();
-	   if (pid == (pid_t) 0)
-	     {
-		   NS_LOG_DEBUG("Launching haptic mock");
-
-		   //
-		   //	Close the write end
-		   //
-		   close(ns3ToChai3DPipe[1]);
-		   //
-		   //	Close the read end
-		   //
-		   close(chai3DToNs3Pipe[0]);
-
-		   //
-		   //	Preparing cmd arguments
-		   //
-		   std::ostringstream oss;
-		   oss << ns3ToChai3DPipe[0];
-		   std::string pipeArg = oss.str();
-
-		   std::ostringstream chai3DToNs3ArgStringStream;
-		   chai3DToNs3ArgStringStream << chai3DToNs3Pipe[1];
-		   std::string returnPipeArg = chai3DToNs3ArgStringStream.str();
-
-		   execl("/home/matthias/Development/Workspace/CHAI3D-Mock/Debug/CHAI3D-Mock",
-				 "/home/matthias/Development/Workspace/CHAI3D-Mock/Debug/CHAI3D-Mock",
-				 pipeArg.c_str(),
-				 returnPipeArg.c_str(),
-				 NULL);
+        execl("/home/matthias/Development/Learning-Named-Pipes/chai3d-mock/build/Chai3D-Mock",
+              "/home/matthias/Development/Learning-Named-Pipes/chai3d-mock/build/Chai3D-Mock",
+              ns3ToChai3DPipeName.c_str(),
+              chai3dToNs3Pipe.c_str(),
+              NULL);
 
 		   NS_LOG_DEBUG("Launching haptic mock failed");
 	     }
@@ -140,10 +126,18 @@ Chai3dServer::Setup(){
 	     {
 	       /* This is the parent process.
 	          Close other end first. */
-	       close (ns3ToChai3DPipe[0]);
-	       close (chai3DToNs3Pipe[1]);
-	       m_ns3ToChai3dServerStream = fdopen (ns3ToChai3DPipe[1], "w");
-	       m_Chai3dServerToNs3Stream = fdopen (chai3DToNs3Pipe[0], "r");
+	       m_nph = new NamedPipeHandler (ns3ToChai3DPipeName,chai3dToNs3Pipe,true);
+
+//	        for(int i = 0; i < 10; i++){
+//	            std::string s("Best wishes from your parent");
+//	            m_nph->SafeWrite(s);
+//
+//	            std::string msg_return;
+//	            m_nph->SafeRead(msg_return);
+//	            NS_LOG_DEBUG(msg_return);
+//
+//	        }
+
 	     }
 
 }
@@ -179,7 +173,8 @@ Chai3dServer::StartApplication (void)
 
 void
 Chai3dServer::StopApplication (void){
-	fclose (m_ns3ToChai3dServerStream);
+	unlink("/home/matthias/Development/Learning-Named-Pipes/ns3ToChai3D");
+	unlink("/home/matthias/Development/Learning-Named-Pipes/chai3dToNs3");
 }
 
 } /* namespace ns3 */
