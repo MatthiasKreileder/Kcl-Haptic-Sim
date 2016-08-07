@@ -24,6 +24,8 @@
 #include <stdlib.h>
 #include <sstream>
 
+#include "named-pipe-handler.h"
+
 namespace ns3 {
 
 class Chai3dServer : public Application {
@@ -52,6 +54,14 @@ protected:
 private:
 
   virtual void StartApplication (void);
+
+  /**
+   * \brief Shuts down the application
+   *
+   * It removes the two named pipes that are created during the installation process of this App on the node.
+   * If the simulator does not execute this function (e.g. the user aborts with 'Ctrl + C') the simulator before this function
+   * gets called you need to manually remove those files from your file system.
+   */
   virtual void StopApplication (void);
   /**
    * \brief Handle a packet reception.
@@ -62,14 +72,19 @@ private:
    */
   void HandleRead (Ptr<Socket> socket);
 
-  std::string m_chai3dWrapperProg;
-  uint16_t m_port; //!< Port on which we listen for incoming packets.
+  std::string m_chai3dWrapperProg; //!< The binary (+path name) of the CHAI3D program ns-3 should talk to
 
-  FILE* m_ns3ToChai3dServerStream;	//!< Write end of the pipe which connects ns-3 and the Chai3d-Wrapper
-  FILE* m_Chai3dServerToNs3Stream;	//!< Read end of the pipe which connects the Chai3d-Wrapper and ns-3
+  std::string m_namedPipesFolder; //!< The folder where the two names pipes (files) will be created to enable the IPC with CHAI3D.
+
+  std::string m_fullNameNamedPipeNs3ToChaid3D;
+  std::string m_fullNameNamedPipeChai3dToNs3;
+
+  uint16_t m_port; //!< Port on which we listen for incoming packets.
 
   Ptr<Socket> m_socket; //!< IPv4 Socket
   Address m_local; //!< local multicast address
+
+  NamedPipeHandler* m_nph;
 
 };
 
