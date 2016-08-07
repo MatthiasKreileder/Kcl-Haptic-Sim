@@ -16,10 +16,24 @@ namespace ns3{
  * \brief Handle the communication via the named pipe passed to its constructor
  *
  * Creates and opens the named pipe
- * Handle reading and writing to the pipe: WILL ONLY ACCEPT MESSAGES WITH A MAXIMUM LENGT OF 100 bytes (because it is intended so send small
+ * Handle reading and writing to the pipe: WILL ONLY ACCEPT MESSAGES WITH A MAXIMUM LENGT OF 100 bytes (because it is
+ * intended so send small messages that just contains a few floating point numbers).
  */
 class NamedPipeHandler{
 public:
+
+	/**
+	 * \brief Sets up the inter process communication via two named pipes
+	 *
+	 * \param ns3ToChai3D The name of the named pipe that will be used by NS-3 to send messages to CHAI3D
+	 * \param chai3DToNs3 The name of the named pipe that will be used by NS-3 to receive messages from CHAI3D
+	 * \param isInit Set to 'true' if this process should created the named pipes
+	 * 				 Set to 'false' if this process should just open existing named pipes but not create them - please note:
+	 * 				 in the current code [August 2016] NS-3 is the parent process and CHAI3D is the child process and NS-3
+	 * 				 is meant to create the named pipes and pass the names as program arguments to the child which will just
+	 * 				 open (but not create) the pipes. Unless you have a good reason please invoke the NamedPipeHandler with
+	 * 				 the \param isInit set to 'true' on the NS-3 side and set to 'false' on the CHAI3D side.
+	 */
     NamedPipeHandler(std::string& ns3ToChai3D, std::string& chai3DToNs3, bool isInit);
 
     /*

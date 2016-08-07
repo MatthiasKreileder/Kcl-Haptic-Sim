@@ -67,7 +67,7 @@ Chai3dServerBaseTestCase::DoRun()
 	//
 	  CsmaHelper csma;
 	  csma.SetChannelAttribute ("DataRate", DataRateValue (DataRate (5000000)));
-	  csma.SetChannelAttribute ("Delay", TimeValue (MilliSeconds (2)));
+	  csma.SetChannelAttribute ("Delay", TimeValue (MilliSeconds (1)));
 	  csma.SetDeviceAttribute ("Mtu", UintegerValue (1400));
 	  NetDeviceContainer d = csma.Install (n);
 
@@ -92,44 +92,36 @@ Chai3dServerBaseTestCase::DoRun()
 
 
 	//
-	// Create a UdpEchoServer application on node one.
+	// Create a Chai3dServer application on node one.
 	//
 	  double interPacketInterval = 0.001;
 	  uint16_t port = 9;  // well-known echo port number
 	  Chai3dServerHelper server (port);
-	  //server.SetAttribute("FileName", StringValue ("src/Kcl-Haptic-Sim/test/test_force.txt"));
-	  //server.SetAttribute ("SamplingIntervalSeconds", TimeValue (interPacketInterval));
+	  server.SetAttribute ("Chai3dWrapper", StringValue ("/home/matthias/Development/chai3d-3.0.0/bin/04-shapes"));
 	  ApplicationContainer apps = server.Install (n.Get (1));
 	  apps.Start (Seconds (1.0));
 	  apps.Stop (Seconds (10.0));
 
-
-
 	//
-	// Create a UdpEchoClient application to send UDP datagrams from node zero to
+	// Create a HapticOperator application to send UDP datagrams from node zero to
 	// node one.
 	//
-
-
 	  HapticOperatorHelper client (serverAddress, port);
-	  client.SetAttribute ("FileName", StringValue ("src/Kcl-Haptic-Sim/test/position.txt"));
+	  client.SetAttribute ("FileName", StringValue ("src/Kcl-Haptic-Sim/test/test_pos.txt"));
 	  client.SetAttribute ("SamplingIntervalSeconds", DoubleValue( interPacketInterval));
 	  client.SetAttribute ("FileType", StringValue ("POSITION"));
 	  apps = client.Install (n.Get (0));
 	  apps.Start (Seconds (2.0));
-	  apps.Stop (Seconds (10.0));
-
+	  apps.Stop (Seconds (9.0));
 
 
 	//
 	// Now, do the actual simulation.
 	//
-	  Simulator::Stop(Seconds(30));
+	  Simulator::Stop(Seconds(15));
 	  Simulator::Run ();
 
 	  Simulator::Destroy ();
-
-
 }
 
 static class Chai3dServerTestSuite : public TestSuite

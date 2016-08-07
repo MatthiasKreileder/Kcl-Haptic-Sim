@@ -192,7 +192,7 @@ HapticOperator::Send (void)
   SensorDataSample sds;
   // on the HapticOperator side we want to send velocity samples
   // ToDo: Think about sending Velocity + Position samples
-  if(m_hapticFileSensor->GetNextSensorDataSample(sds,HapticFileSensor::VELOCITY)){
+  if(m_hapticFileSensor->GetNextSensorDataSample(sds,HapticFileSensor::POSITION)){
 
 	  //
 	  //	We made it here => there is still data to send
