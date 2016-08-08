@@ -104,7 +104,7 @@ HapticOperatorBaseTestCase::DoRun()
 	  apps.Stop (Seconds (10.0));
 
 	//
-	// Create a UdpEchoClient application to send UDP datagrams from node zero to
+	// Create a HapticOperator application to send UDP datagrams from node zero to
 	// node one.
 	//
 
