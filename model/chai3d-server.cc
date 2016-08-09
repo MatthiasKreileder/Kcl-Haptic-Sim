@@ -86,9 +86,9 @@ Chai3dServer::HandleRead (Ptr<Socket> socket)
 
 	  m_nph->SafeWrite(s);
 
-	  std::string msg_from_chai3d;
-	  m_nph->SafeRead(msg_from_chai3d);
-	  NS_LOG_DEBUG("Received " << msg_from_chai3d);
+//	  std::string msg_from_chai3d;
+//	  m_nph->SafeRead(msg_from_chai3d);
+//	  NS_LOG_DEBUG("Received " << msg_from_chai3d);
 
 
     }

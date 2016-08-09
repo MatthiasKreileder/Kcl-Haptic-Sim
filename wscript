@@ -10,10 +10,12 @@ def build(bld):
        'model/haptic-tele-operator.cc',
        'model/chai3d-server.cc',
        'model/named-pipe-handler.cc',
+       'model/phantom-agent.cc',
        'helper/haptic-operator-helper.cc',
        'helper/haptic-tele-operator-helper.cc',
        'helper/position-to-velocity-conversion.cc',
-       'helper/chai3d-server-helper.cc'
+       'helper/chai3d-server-helper.cc',
+       'helper/phantom-agent-helper.cc'
         ]
     obj.cxxflags = ['-std=c++11']
 
@@ -38,10 +40,12 @@ def build(bld):
        'model/haptic-tele-operator.h',
        'model/chai3d-server.h',
        'model/named-pipe-handler.h',
+       'model/phantom-agent.h',
        'helper/haptic-operator-helper.h',
        'helper/haptic-tele-operator-helper.h',
        'helper/position-to-velocity-conversion.h',
-       'helper/chai3d-server-helper.h'
+       'helper/chai3d-server-helper.h',
+       'helper/phantom-agent-helper.h'
         ]
 
     
