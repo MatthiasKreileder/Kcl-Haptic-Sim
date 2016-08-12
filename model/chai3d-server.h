@@ -24,9 +24,16 @@
 #include <stdlib.h>
 #include <sstream>
 
+//#include "boost/thread.hpp"
+//#include <boost/asio.hpp>
+//#include <boost/shared_ptr.hpp>
+//#include <boost/bind.hpp>
+
 #include "named-pipe-handler.h"
 
 namespace ns3 {
+
+//static boost::mutex namedPipes_lock;
 
 class Chai3dServer : public Application {
 public:

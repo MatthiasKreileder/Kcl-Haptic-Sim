@@ -12,7 +12,7 @@
 #include "ns3/csma-module.h"
 #include "ns3/applications-module.h"
 #include "ns3/internet-module.h"
-
+#include "ns3/point-to-point-module.h"
 #include <string>
 
 // Network topology
@@ -57,7 +57,7 @@ Chai3dServerBaseTestCase::DoRun()
 	//
 
 	  NodeContainer n;
-	  n.Create (4);
+	  n.Create (2);
 
 	  InternetStackHelper internet;
 	  internet.Install (n);
@@ -66,11 +66,17 @@ Chai3dServerBaseTestCase::DoRun()
 	//
 	// Explicitly create the channels required by the topology (shown above).
 	//
-	  CsmaHelper csma;
-	  csma.SetChannelAttribute ("DataRate", DataRateValue (DataRate (5000000)));
-	  csma.SetChannelAttribute ("Delay", TimeValue (MilliSeconds (1)));
-	  csma.SetDeviceAttribute ("Mtu", UintegerValue (1400));
-	  NetDeviceContainer d = csma.Install (n);
+//	  CsmaHelper csma;
+//	  csma.SetChannelAttribute ("DataRate", DataRateValue (DataRate (5000000)));
+//	  csma.SetChannelAttribute ("Delay", TimeValue (MilliSeconds (100)));
+//	  csma.SetDeviceAttribute ("Mtu", UintegerValue (1400));
+//	  NetDeviceContainer d = csma.Install (n);
+
+	  PointToPointHelper pointToPoint;
+	  pointToPoint.SetDeviceAttribute ("DataRate", StringValue ("5Mbps"));
+	  pointToPoint.SetChannelAttribute ("Delay", StringValue ("2ms"));
+	  NetDeviceContainer d = pointToPoint.Install (n);
+
 
 	//
 	// We've got the "hardware" in place.  Now we need to add IP addresses.

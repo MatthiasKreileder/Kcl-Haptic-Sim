@@ -1,5 +1,10 @@
 ## -*- Mode: python; py-indent-offset: 4; indent-tabs-mode: nil; coding: utf-8; -*-
 
+REQUIRED_BOOST_LIBS = ['system', 'signals', 'filesystem', 'thread']
+
+def required_boost_libs(conf):
+    conf.env['REQUIRED_BOOST_LIBS'] += REQUIRED_BOOST_LIBS
+
 def build(bld):
     obj = bld.create_ns3_module('Kcl-Haptic-Sim', ['internet'])
     obj.source = [
@@ -17,7 +22,13 @@ def build(bld):
        'helper/chai3d-server-helper.cc',
        'helper/phantom-agent-helper.cc'
         ]
-    obj.cxxflags = ['-std=c++11']
+    obj.cxxflags = ['-std=c++11',
+    				'-I /home/matthias/Development/install_dir/boost_install_dir/include/',
+    				'-L /home/matthias/Development/install_dir/boost_install_dir/lib',
+    				'-l boost_system',
+    				'-l boost_thread',
+    				'-L /lib64',
+    				'-l pthread']
 
     module_test = bld.create_ns3_module_test_library('Kcl-Haptic-Sim')
     module_test.source = [

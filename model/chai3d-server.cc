@@ -24,6 +24,10 @@ Chai3dServer::Chai3dServer() {
 	m_port = -1;
 	m_socket = 0;
 	m_nph = 0;
+
+//	namedPipes_lock.lock();
+//	namedPipes_lock.unlock();
+
 }
 
 Chai3dServer::~Chai3dServer() {
