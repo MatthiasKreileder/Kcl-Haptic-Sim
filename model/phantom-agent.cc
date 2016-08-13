@@ -26,6 +26,16 @@ PhantomAgent::GetTypeId (void)
                    UintegerValue (100),
                    MakeUintegerAccessor (&PhantomAgent::m_peerPort),
                    MakeUintegerChecker<uint16_t> ())
+//	.AddAttribute ("LocalAddressForChai3D",
+//                   "The address we are binding to for the Chai3dServer",
+//                   AddressValue (),
+//                   MakeAddressAccessor (&PhantomAgent::m_localChai3DAddress),
+//                   MakeAddressChecker ())
+//    .AddAttribute ("LocalPortForChai3D",
+//    			   "The port we are binding to for the Chai3dServer",
+//                   UintegerValue (100),
+//                   MakeUintegerAccessor (&PhantomAgent::m_localChai3DPort),
+//                   MakeUintegerChecker<uint16_t> ())
   ;
   return tid;
 }
@@ -74,11 +84,18 @@ PhantomAgent::StartApplication (void)
     {
 	  //m_chai3DSocket->Bind ();
 	  m_chai3DSocket->Connect (InetSocketAddress (Ipv4Address::ConvertFrom(m_peerAddress), m_peerPort));
+	  m_chai3DSocket->SetRecvCallback(MakeCallback (&PhantomAgent::ReadPacketFromChai3D, this));
     }
   else{
 	  NS_ABORT_MSG("PhantomAgent currently only works with IPv4");
   }
 
+
+
+}
+
+void PhantomAgent::ReadPacketFromChai3D (Ptr<Socket> socket){
+	NS_LOG_FUNCTION(this);
 }
 
 void PhantomAgent::ReadFromPacketFromPhantom (Ptr<Socket> socket){
@@ -120,7 +137,10 @@ void PhantomAgent::ReadFromPacketFromPhantom (Ptr<Socket> socket){
 	      	// Fill out udpHeader fields appropriately
 	      	packetToChai3D->AddHeader (hapticHeader);
 
+	      	//m_socket->SendTo(packetToChai3D,0,from);
 	          m_chai3DSocket->Send(packetToChai3D);
+
+
 	}
 
 }

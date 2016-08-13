@@ -43,6 +43,8 @@ private:
 
 	 virtual void StartApplication (void);
 
+	 void ReadPacketFromChai3D (Ptr<Socket> socket);
+
 	 void ReadFromPacketFromPhantom (Ptr<Socket> socket);
 
 	Address m_peerAddress; //!< Remote peer address
@@ -54,6 +56,13 @@ private:
 	uint16_t m_localPort;
 
 	Ptr<Socket> m_chai3DSocket;
+
+//	/*
+//	 * The PhantomAgent needs to listen to receive the
+//	 * force feedback from the Chai3DServer
+//	 */
+//	Address m_localChai3DAddress;
+//	uint16_t m_localChai3DPort;
 };
 
 }

@@ -11,7 +11,7 @@
 #include "ns3/uinteger.h"
 #include "ns3/packet.h"
 #include "ns3/udp-socket.h"
-
+#include <iostream>
 namespace ns3 {
 
 NS_LOG_COMPONENT_DEFINE ("Chai3dServer");
@@ -27,6 +27,8 @@ Chai3dServer::Chai3dServer() {
 
 //	namedPipes_lock.lock();
 //	namedPipes_lock.unlock();
+
+
 
 }
 
@@ -94,6 +96,8 @@ Chai3dServer::HandleRead (Ptr<Socket> socket)
 //	  m_nph->SafeRead(msg_from_chai3d);
 //	  NS_LOG_DEBUG("Received " << msg_from_chai3d);
 
+	  Ptr<Packet> packetForPhantom = Create<Packet> ();
+	  m_socket->SendTo(packetForPhantom,0,from);
 
     }
 }
