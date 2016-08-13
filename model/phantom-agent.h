@@ -45,12 +45,15 @@ private:
 
 	 void ReadPacketFromChai3D (Ptr<Socket> socket);
 
-	 void ReadFromPacketFromPhantom (Ptr<Socket> socket);
+	 void ReadPacketFromPhantom (Ptr<Socket> socket);
 
 	Address m_peerAddress; //!< Remote peer address
 	uint16_t m_peerPort; //!< Remote peer port
 
-	Ptr<Socket> m_socket; //!< Socket
+	/**
+	 * \brief the socket to communicate with the phantom omni
+	 */
+	Ptr<Socket> m_socketForCommunicationWithPhantomOmni; //!< Socket to communicate with the phantom omni
 
 	Ipv4Address m_localIpv4;
 	uint16_t m_localPort;
@@ -61,7 +64,15 @@ private:
 //	 * The PhantomAgent needs to listen to receive the
 //	 * force feedback from the Chai3DServer
 //	 */
-//	Address m_localChai3DAddress;
+
+	/**
+	 * \brief The address of the phantom omni - will be learned on the fly
+	 *
+	 * This member holds the address of the real device that is sending data to ns-3
+	 * It is by no means bound to using a phantom omni but this class was developed to use it
+	 * for that purpose => the naming reflects the intended use
+	 */
+	Address m_phantomAddress;
 //	uint16_t m_localChai3DPort;
 };
 

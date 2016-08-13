@@ -64,18 +64,18 @@ PhantomAgent::StartApplication (void)
 {
   NS_LOG_FUNCTION (this);
 
-  if (m_socket == 0)
+  if (m_socketForCommunicationWithPhantomOmni == 0)
     {
 
 	  Ptr<UdpL4Protocol> udpSocketFactory = this->GetNode()->GetObject<UdpL4Protocol> ();
-	  m_socket = udpSocketFactory->CreateSocket ();
+	  m_socketForCommunicationWithPhantomOmni = udpSocketFactory->CreateSocket ();
 	  InetSocketAddress dst = InetSocketAddress (m_localIpv4, m_localPort);
-	  m_socket->Bind(dst);
+	  m_socketForCommunicationWithPhantomOmni->Bind(dst);
 
 
     }
-  m_socket->SetRecvCallback (MakeCallback (&PhantomAgent::ReadFromPacketFromPhantom, this));
-  //m_socket->SetAllowBroadcast (true);
+  m_socketForCommunicationWithPhantomOmni->SetRecvCallback (MakeCallback (&PhantomAgent::ReadPacketFromPhantom, this));
+  //m_socketForCommunicationWithPhantomOmni->SetAllowBroadcast (true);
 
 
   TypeId tid = TypeId::LookupByName ("ns3::UdpSocketFactory");
@@ -96,31 +96,41 @@ PhantomAgent::StartApplication (void)
 
 void PhantomAgent::ReadPacketFromChai3D (Ptr<Socket> socket){
 	NS_LOG_FUNCTION(this);
+
+	Ptr<Packet> packet;
+	Address from;
+	while ((packet = socket->RecvFrom (from))){
+		m_socketForCommunicationWithPhantomOmni->SendTo(packet,0,m_phantomAddress);
+	}
 }
 
-void PhantomAgent::ReadFromPacketFromPhantom (Ptr<Socket> socket){
+void PhantomAgent::ReadPacketFromPhantom (Ptr<Socket> socket){
 	NS_LOG_FUNCTION(this);
 
 	Ptr<Packet> packet;
 	Address from;
 	while ((packet = socket->RecvFrom (from)))
 	{
-	          NS_LOG_DEBUG ("At time " << Simulator::Now ().GetSeconds () << "s PhantomAgent received " << packet->GetSize () << " bytes from " <<
-	                       InetSocketAddress::ConvertFrom (from).GetIpv4 () << " port " <<
-	                       InetSocketAddress::ConvertFrom (from).GetPort ());
+		NS_LOG_DEBUG ("At time " << Simulator::Now ().GetSeconds () << "s PhantomAgent received " << packet->GetSize () << " bytes from " <<
+	                  InetSocketAddress::ConvertFrom (from).GetIpv4 () << " port " <<
+	                  InetSocketAddress::ConvertFrom (from).GetPort ());
 
-	          //uint32_t CopyData (uint8_t *buffer, uint32_t size) const;
-	          uint8_t buf[packet->GetSize () + 1];
-	          buf[packet->GetSize ()] = '\0';
-	          uint32_t size = packet->GetSize();
-	          //size = 32;
-	          packet->CopyData(buf,size);
+	    /*
+	     * We need to store the this address to be able to send back the force-feedback
+	     */
+		m_phantomAddress = from;
 
-	          std::ostringstream oss;
-	          for(uint32_t i = 0; i < size; i++){
-	        	  oss << buf[i];
-	          }
-	          NS_LOG_DEBUG(oss.str());
+        uint8_t buf[packet->GetSize () + 1];
+        buf[packet->GetSize ()] = '\0';
+        uint32_t size = packet->GetSize();
+
+        packet->CopyData(buf,size);
+
+        std::ostringstream oss;
+        for(uint32_t i = 0; i < size; i++){
+      	  oss << buf[i];
+        }
+        NS_LOG_DEBUG(oss.str());
 
 	          //socket->SendTo(packet,0,from);
 
@@ -137,7 +147,7 @@ void PhantomAgent::ReadFromPacketFromPhantom (Ptr<Socket> socket){
 	      	// Fill out udpHeader fields appropriately
 	      	packetToChai3D->AddHeader (hapticHeader);
 
-	      	//m_socket->SendTo(packetToChai3D,0,from);
+	      	//m_socketForCommunicationWithPhantomOmni->SendTo(packetToChai3D,0,from);
 	          m_chai3DSocket->Send(packetToChai3D);
 
 
