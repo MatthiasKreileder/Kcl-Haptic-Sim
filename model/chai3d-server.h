@@ -91,6 +91,9 @@ private:
   Ptr<Socket> m_socket; //!< IPv4 Socket
   Address m_local; //!< local multicast address
 
+  Address m_phantomAgentAddress; //!< Remote peer address
+  uint16_t m_phantomAgentPort; //!< Remote peer port
+
   NamedPipeHandler* m_nph;
 
 };

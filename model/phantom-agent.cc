@@ -20,11 +20,11 @@ PhantomAgent::GetTypeId (void)
     .AddAttribute ("Chai3dWrapperAddress",
                    "The destination Address of the outbound packets",
                    AddressValue (),
-                   MakeAddressAccessor (&PhantomAgent::m_peerAddress),
+                   MakeAddressAccessor (&PhantomAgent::m_chai3dAgentAddress),
                    MakeAddressChecker ())
     .AddAttribute ("Chai3dWrapperPort", "The destination port of the outbound packets",
                    UintegerValue (100),
-                   MakeUintegerAccessor (&PhantomAgent::m_peerPort),
+                   MakeUintegerAccessor (&PhantomAgent::m_chai3dAgentPort),
                    MakeUintegerChecker<uint16_t> ())
 //	.AddAttribute ("LocalAddressForChai3D",
 //                   "The address we are binding to for the Chai3dServer",
@@ -41,7 +41,7 @@ PhantomAgent::GetTypeId (void)
 }
 
 PhantomAgent::PhantomAgent (){
-	m_peerPort = 0;
+	m_chai3dAgentPort = 0;
 	m_localPort = 0;
 }
 
@@ -55,8 +55,8 @@ void
 PhantomAgent::SetRemote (Ipv4Address ip, uint16_t port)
 {
   NS_LOG_FUNCTION (this << ip << port);
-  m_peerAddress = Address(ip);
-  m_peerPort = port;
+  m_chai3dAgentAddress = Address(ip);
+  m_chai3dAgentPort = port;
 }
 
 void
@@ -80,10 +80,10 @@ PhantomAgent::StartApplication (void)
 
   TypeId tid = TypeId::LookupByName ("ns3::UdpSocketFactory");
   m_chai3DSocket = Socket::CreateSocket (GetNode (), tid);
-  if (Ipv4Address::IsMatchingType(m_peerAddress) == true)
+  if (Ipv4Address::IsMatchingType(m_chai3dAgentAddress) == true)
     {
 	  //m_chai3DSocket->Bind ();
-	  m_chai3DSocket->Connect (InetSocketAddress (Ipv4Address::ConvertFrom(m_peerAddress), m_peerPort));
+	  m_chai3DSocket->Connect (InetSocketAddress (Ipv4Address::ConvertFrom(m_chai3dAgentAddress), m_chai3dAgentPort));
 	  m_chai3DSocket->SetRecvCallback(MakeCallback (&PhantomAgent::ReadPacketFromChai3D, this));
     }
   else{
@@ -100,6 +100,19 @@ void PhantomAgent::ReadPacketFromChai3D (Ptr<Socket> socket){
 	Ptr<Packet> packet;
 	Address from;
 	while ((packet = socket->RecvFrom (from))){
+
+		/*
+		 * Check if the received packet is from the Chai3DAgent we are talking to
+		 */
+		if (InetSocketAddress::ConvertFrom (m_chai3dAgentAddress).GetIpv4 ()
+				!=
+			InetSocketAddress::ConvertFrom (from).GetIpv4 ())
+		{
+
+			NS_LOG_DEBUG("Received packet from un-known source: " << from);
+			return;
+		}
+
 		m_socketForCommunicationWithPhantomOmni->SendTo(packet,0,m_phantomAddress);
 	}
 }

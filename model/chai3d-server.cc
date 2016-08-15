@@ -59,6 +59,16 @@ Chai3dServer::GetTypeId (void)
 				   MakeStringAccessor (&Chai3dServer::m_namedPipesFolder),
 				   MakeStringChecker()
 				   )
+	.AddAttribute ("PhantomAgentAddress",
+	               "The PhantomAgent Address",
+	               AddressValue (),
+	               MakeAddressAccessor (&Chai3dServer::m_phantomAgentAddress),
+	               MakeAddressChecker ())
+	.AddAttribute ("PhantomAgentPort",
+	               "The PhantomAgent port",
+	               UintegerValue (0),
+	               MakeUintegerAccessor (&Chai3dServer::m_phantomAgentPort),
+			       MakeUintegerChecker<uint16_t> ())
   ;
   return tid;
 }

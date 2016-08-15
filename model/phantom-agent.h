@@ -47,8 +47,8 @@ private:
 
 	 void ReadPacketFromPhantom (Ptr<Socket> socket);
 
-	Address m_peerAddress; //!< Remote peer address
-	uint16_t m_peerPort; //!< Remote peer port
+	Address m_chai3dAgentAddress; //!< The Chai3DAgent address
+	uint16_t m_chai3dAgentPort; //!< The Chai3DAgent port
 
 	/**
 	 * \brief the socket to communicate with the phantom omni

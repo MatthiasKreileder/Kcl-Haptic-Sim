@@ -82,12 +82,14 @@ Chai3dServerBaseTestCase::DoRun()
 	// We've got the "hardware" in place.  Now we need to add IP addresses.
 	//
 
+	  Address peerAddress;
 	  if (useV6 == false)
 	    {
 	      Ipv4AddressHelper ipv4;
 	      ipv4.SetBase ("10.1.1.0", "255.255.255.0");
 	      Ipv4InterfaceContainer i = ipv4.Assign (d);
 	      serverAddress = Address(i.GetAddress (1));
+	      peerAddress = Address(i.GetAddress (0));
 	    }
 	  else
 	    {
@@ -95,6 +97,7 @@ Chai3dServerBaseTestCase::DoRun()
 	      ipv6.SetBase ("2001:0000:f00d:cafe::", Ipv6Prefix (64));
 	      Ipv6InterfaceContainer i6 = ipv6.Assign (d);
 	      serverAddress = Address(i6.GetAddress (1,1));
+	      peerAddress = Address(i6.GetAddress (0,0));
 	    }
 
 
@@ -103,7 +106,7 @@ Chai3dServerBaseTestCase::DoRun()
 	//
 	  double interPacketInterval = 0.001;
 	  uint16_t port = 9;  // well-known echo port number
-	  Chai3dServerHelper server (port);
+	  Chai3dServerHelper server (port,peerAddress,1234);
 	  server.SetAttribute ("Chai3dWrapper", StringValue ("/home/matthias/Development/chai3d-3.0.0/bin/04-shapes"));
 	  ApplicationContainer apps = server.Install (n.Get (1));
 	  apps.Start (Seconds (1.0));
