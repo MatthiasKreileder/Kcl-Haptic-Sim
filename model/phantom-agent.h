@@ -55,7 +55,7 @@ private:
 	 */
 	Ptr<Socket> m_socketForCommunicationWithPhantomOmni; //!< Socket to communicate with the phantom omni
 
-	Ipv4Address m_localIpv4;
+	Ipv4Address m_localIpv4ForCommunicationWithPhantomOmni;
 	uint16_t m_localPort;
 
 	Ptr<Socket> m_chai3DSocket;

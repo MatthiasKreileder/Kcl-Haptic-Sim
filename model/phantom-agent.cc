@@ -47,7 +47,7 @@ PhantomAgent::PhantomAgent (){
 
 void PhantomAgent::SetLocal (Ipv4Address localIpv4, uint16_t localPort)
 {
-	m_localIpv4 = localIpv4;
+	m_localIpv4ForCommunicationWithPhantomOmni = localIpv4;
 	m_localPort = localPort;
 }
 
@@ -69,8 +69,8 @@ PhantomAgent::StartApplication (void)
 
 	  Ptr<UdpL4Protocol> udpSocketFactory = this->GetNode()->GetObject<UdpL4Protocol> ();
 	  m_socketForCommunicationWithPhantomOmni = udpSocketFactory->CreateSocket ();
-	  InetSocketAddress dst = InetSocketAddress (m_localIpv4, m_localPort);
-	  m_socketForCommunicationWithPhantomOmni->Bind(dst);
+	  InetSocketAddress localInterfaceForCommunicationWithPhantom = InetSocketAddress (m_localIpv4ForCommunicationWithPhantomOmni, m_localPort);
+	  m_socketForCommunicationWithPhantomOmni->Bind(localInterfaceForCommunicationWithPhantom);
 
 
     }
