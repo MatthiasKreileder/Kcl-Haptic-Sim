@@ -69,7 +69,7 @@ private:
    */
   void Send (void);
 
-  Time m_interval; //!< Packet inter-send time
+  double m_interval; //!< Packet inter-send time
 
   Address m_peerAddress; //!< Remote peer address
   uint16_t m_peerPort; //!< Remote peer port

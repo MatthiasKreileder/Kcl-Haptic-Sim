@@ -28,7 +28,7 @@ void CheckSensorDataSampleContainers::DoRun(){
 	//	Please note: This test depends on a valid input file with 21 lines
 	//
 	HapticFileSensor::SensorFileType type = HapticFileSensor::POSITION;
-	HapticFileSensor hfs ("src/Kcl-Haptic-Sim/test/test_pos.txt",type);
+	HapticFileSensor hfs ("src/Kcl-Haptic-Sim/test/test_pos.txt",type, 1);
 	size_t numPosElements = hfs.GetData(HapticFileSensor::POSITION).size();
 	size_t numVelElements = hfs.GetData(HapticFileSensor::VELOCITY).size();
 	size_t numForceElements = hfs.GetData(HapticFileSensor::FORCEFEEDBACK).size();
@@ -55,7 +55,7 @@ void GetNextSensorDataSampleTestCase::DoRun(){
 	//	Please note: This test depends on a valid input file with 21 lines
 	//
 	HapticFileSensor::SensorFileType type = HapticFileSensor::FORCEFEEDBACK;
-	HapticFileSensor hfs ("src/Kcl-Haptic-Sim/test/test_force.txt",type);
+	HapticFileSensor hfs ("src/Kcl-Haptic-Sim/test/test_force.txt",type,1);
 	size_t numElements = hfs.GetData(HapticFileSensor::FORCEFEEDBACK).size();
 
 	NS_LOG_DEBUG("HapicFileSensor read " << numElements);
@@ -92,7 +92,7 @@ void HapticFileSensorParseForceFeedbackFileTestCase::DoRun(){
 	//	Please note: This test depends on a valid input file with 21 lines
 	//
 	HapticFileSensor::SensorFileType type = HapticFileSensor::FORCEFEEDBACK;
-	HapticFileSensor hfs ("src/Kcl-Haptic-Sim/test/test_force.txt",type);
+	HapticFileSensor hfs ("src/Kcl-Haptic-Sim/test/test_force.txt",type,1);
 	size_t numElements = hfs.GetData(HapticFileSensor::FORCEFEEDBACK).size();
 
 	NS_TEST_ASSERT_MSG_EQ(numElements,21,"Parsing position data from file failed");
@@ -116,7 +116,7 @@ HapticFileSensorParseFileTestCase::DoRun()
 	//	Please note: This test depends on a valid input file with 19 lines
 	//
 	HapticFileSensor::SensorFileType type = HapticFileSensor::POSITION;
-	HapticFileSensor hfs ("src/Kcl-Haptic-Sim/test/test_pos.txt",type);
+	HapticFileSensor hfs ("src/Kcl-Haptic-Sim/test/test_pos.txt",type,1);
 	size_t numElements = hfs.GetData(HapticFileSensor::POSITION).size();
 
 	NS_TEST_ASSERT_MSG_EQ(numElements,19,"Parsing position data from file failed");

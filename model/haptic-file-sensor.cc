@@ -7,7 +7,7 @@ namespace ns3 {
 
 NS_LOG_COMPONENT_DEFINE ("HapticFileSensor");
 
-HapticFileSensor::HapticFileSensor(std::string fileName, HapticFileSensor::SensorFileType type){
+HapticFileSensor::HapticFileSensor(std::string fileName, HapticFileSensor::SensorFileType type, double interSampleSeconds){
 	NS_LOG_FUNCTION(this << "Filename: " << fileName << " Type: " << type);
 
 	m_posData = std::deque<SensorDataSample>();
@@ -16,7 +16,7 @@ HapticFileSensor::HapticFileSensor(std::string fileName, HapticFileSensor::Senso
 
 	if (type == FileType::POSITION){
 		ReadSensorDataSamples(fileName,m_posData);
-		m_velocityData = PositionToVelocityConversion::ConvertPositionToVelocity(m_posData,m_interSampleSeconds);
+		m_velocityData = PositionToVelocityConversion::ConvertPositionToVelocity(m_posData,interSampleSeconds);
 	}
 	else if(type == FileType::VELOCITY){
 		ReadSensorDataSamples(fileName,m_velocityData);

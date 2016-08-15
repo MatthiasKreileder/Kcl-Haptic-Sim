@@ -7,6 +7,7 @@
 
 #include "ns3/test.h"
 #include "../helper/haptic-operator-helper.h"
+#include "../helper/haptic-tele-operator-helper.h"
 #include "../model/haptic-operator.h"
 #include "ns3/packet.h"
 #include "ns3/log.h"
@@ -31,21 +32,21 @@
 
 namespace ns3 {
 
-NS_LOG_COMPONENT_DEFINE("HapticOperatorTest");
+NS_LOG_COMPONENT_DEFINE("HapticTeleOperatorTest");
 
-class HapticOperatorBaseTestCase : public ns3::TestCase {
+class HapticTeleOperatorBaseTestCase : public ns3::TestCase {
 public:
-	HapticOperatorBaseTestCase ();
+	HapticTeleOperatorBaseTestCase ();
 	virtual void DoRun (void);
 };
 
-HapticOperatorBaseTestCase::HapticOperatorBaseTestCase()
-	: ns3::TestCase ("HapticOperatorBaseTestCase")
+HapticTeleOperatorBaseTestCase::HapticTeleOperatorBaseTestCase()
+	: ns3::TestCase ("HapticTeleOperatorBaseTestCase")
 {
 }
 
 void
-HapticOperatorBaseTestCase::DoRun()
+HapticTeleOperatorBaseTestCase::DoRun()
 {
 
 	//
@@ -97,18 +98,23 @@ HapticOperatorBaseTestCase::DoRun()
 	//
 	// Create a UdpEchoServer application on node one.
 	//
+	  double interPacketInterval = 0.001;
 	  uint16_t port = 9;  // well-known echo port number
-	  UdpEchoServerHelper server (port);
+	  HapticTeleOperatorHelper server (port);
+	  server.SetAttribute("FileName", StringValue ("src/Kcl-Haptic-Sim/test/test_force.txt"));
+	  server.SetAttribute ("SamplingIntervalSeconds", DoubleValue (interPacketInterval));
 	  ApplicationContainer apps = server.Install (n.Get (1));
 	  apps.Start (Seconds (1.0));
 	  apps.Stop (Seconds (10.0));
+
+
 
 	//
 	// Create a UdpEchoClient application to send UDP datagrams from node zero to
 	// node one.
 	//
 
-	  double interPacketInterval = 0.001;
+
 	  HapticOperatorHelper client (serverAddress, port);
 	  client.SetAttribute ("FileName", StringValue ("src/Kcl-Haptic-Sim/test/test_pos.txt"));
 	  client.SetAttribute ("SamplingIntervalSeconds", DoubleValue (interPacketInterval));
@@ -129,15 +135,15 @@ HapticOperatorBaseTestCase::DoRun()
 
 }
 
-static class HapticOperatorTestSuite : public TestSuite
+static class HapticTeleOperatorTestSuite : public TestSuite
 {
 public:
-	HapticOperatorTestSuite ()
-    : TestSuite ("HapticOperator", EXAMPLE)
+	HapticTeleOperatorTestSuite ()
+    : TestSuite ("HapticTeleOperator", EXAMPLE)
   {
-    AddTestCase (new HapticOperatorBaseTestCase (), TestCase::QUICK);
+    AddTestCase (new HapticTeleOperatorBaseTestCase (), TestCase::QUICK);
   }
-} g_hapticOperatorTestSuite;
+} g_hapticTeleOperatorTestSuite;
 
 
 }

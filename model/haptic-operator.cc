@@ -20,6 +20,7 @@
 #include "ns3/packet.h"
 #include "ns3/uinteger.h"
 #include "ns3/string.h"
+#include "ns3/double.h"
 
 #include <cstdlib>
 #include <cstdio>
@@ -49,9 +50,9 @@ HapticOperator::GetTypeId (void)
     .SetGroupName("Applications")
     .AddConstructor<HapticOperator> ()
     .AddAttribute ("SamplingIntervalSeconds",
-                   "The time in seconds between two data samples.", TimeValue (Seconds (0.0001)),
-                   MakeTimeAccessor (&HapticOperator::m_interval),
-                   MakeTimeChecker ())
+                   "The time in seconds between two data samples.", DoubleValue (0.0001),
+                   MakeDoubleAccessor (&HapticOperator::m_interval),
+                   MakeDoubleChecker<double>())
     .AddAttribute ("RemoteAddress",
                    "The destination Address of the outbound packets",
                    AddressValue (),
@@ -145,7 +146,7 @@ HapticOperator::StartApplication (void)
 	  m_hapticSensorFileType = HapticFileSensor::FORCEFEEDBACK;
   }
 
-  m_hapticFileSensor = new HapticFileSensor(m_fileName,m_hapticSensorFileType);
+  m_hapticFileSensor = new HapticFileSensor(m_fileName,m_hapticSensorFileType, m_interval);
 
 
 
@@ -169,29 +170,13 @@ void HapticOperator::HandleRead(Ptr<Socket> socket){
 	    {
 	      if (InetSocketAddress::IsMatchingType (from))
 	        {
-	          NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s server received " << packet->GetSize () << " bytes from " <<
+	          NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s HapticOperator received " << packet->GetSize () << " bytes from " <<
 	                       InetSocketAddress::ConvertFrom (from).GetIpv4 () << " port " <<
 	                       InetSocketAddress::ConvertFrom (from).GetPort ());
 	        }
 	      else if (Inet6SocketAddress::IsMatchingType (from))
 	        {
-	          NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s server received " << packet->GetSize () << " bytes from " <<
-	                       Inet6SocketAddress::ConvertFrom (from).GetIpv6 () << " port " <<
-	                       Inet6SocketAddress::ConvertFrom (from).GetPort ());
-	        }
-
-	      packet->RemoveAllPacketTags ();
-	      packet->RemoveAllByteTags ();
-
-	      if (InetSocketAddress::IsMatchingType (from))
-	        {
-	          NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s server sent " << packet->GetSize () << " bytes to " <<
-	                       InetSocketAddress::ConvertFrom (from).GetIpv4 () << " port " <<
-	                       InetSocketAddress::ConvertFrom (from).GetPort ());
-	        }
-	      else if (Inet6SocketAddress::IsMatchingType (from))
-	        {
-	          NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s server sent " << packet->GetSize () << " bytes to " <<
+	          NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s HapticOperator received " << packet->GetSize () << " bytes from " <<
 	                       Inet6SocketAddress::ConvertFrom (from).GetIpv6 () << " port " <<
 	                       Inet6SocketAddress::ConvertFrom (from).GetPort ());
 	        }
@@ -207,11 +192,12 @@ HapticOperator::Send (void)
   SensorDataSample sds;
   // on the HapticOperator side we want to send velocity samples
   // ToDo: Think about sending Velocity + Position samples
-  if(m_hapticFileSensor->GetNextSensorDataSample(sds,HapticFileSensor::VELOCITY)){
+  if(m_hapticFileSensor->GetNextSensorDataSample(sds,HapticFileSensor::POSITION)){
 
 	  //
 	  //	We made it here => there is still data to send
 	  //
+	  NS_LOG_DEBUG("SensorDataContent: " << sds.getSensorDataString());
 
 	  //
 	  //	Wrap it in a HapticHeader to prepare data to be
@@ -219,6 +205,8 @@ HapticOperator::Send (void)
 	  //
 	  HapticHeader hapticHeader;
 	  hapticHeader.SetHapticMessage(sds.getSensorDataString());
+
+	  NS_LOG_DEBUG("HapticHeader contents: " << hapticHeader.GetHapticMessage());
 
 	  Ptr<Packet> p = Create<Packet> (hapticHeader.GetSerializedSize());
 	  p->AddHeader(hapticHeader);
@@ -247,7 +235,7 @@ HapticOperator::Send (void)
 	                                          << peerAddressStringStream.str ());
 	    }
 
-	      m_sendEvent = Simulator::Schedule (m_interval, &HapticOperator::Send, this);
+	      m_sendEvent = Simulator::Schedule (Seconds( m_interval), &HapticOperator::Send, this);
 
   }
   else{
