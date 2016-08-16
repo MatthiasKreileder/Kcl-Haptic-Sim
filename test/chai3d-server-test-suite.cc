@@ -110,11 +110,8 @@ Chai3dServerBaseTestCase::DoRun()
 	  server.SetAttribute ("Chai3dWrapper", StringValue ("/home/matthias/Development/chai3d-3.0.0/bin/04-shapes"));
 	  ApplicationContainer apps = server.Install (n.Get (1));
 	  apps.Start (Seconds (1.0));
-<<<<<<< HEAD
-	  apps.Stop (Seconds (100.0));
-=======
 	  apps.Stop (Seconds (30.0));
->>>>>>> master
+
 
 	//
 	// Create a HapticOperator application to send UDP datagrams from node zero to
@@ -124,24 +121,18 @@ Chai3dServerBaseTestCase::DoRun()
 	  client.SetAttribute ("FileName", StringValue ("src/Kcl-Haptic-Sim/test/position.txt"));
 	  client.SetAttribute ("SamplingIntervalSeconds", DoubleValue( interPacketInterval));
 	  client.SetAttribute ("FileType", StringValue ("POSITION"));
-	  client.SetAttribute ("ApplyDataReduction", BooleanValue (true));
+	  //client.SetAttribute ("ApplyDataReduction", BooleanValue (true));
 	  apps = client.Install (n.Get (0));
 	  apps.Start (Seconds (2.0));
-<<<<<<< HEAD
-	  apps.Stop (Seconds (99.0));
-=======
 	  apps.Stop (Seconds (20.0));
->>>>>>> master
+
 
 
 	//
 	// Now, do the actual simulation.
 	//
-<<<<<<< HEAD
-	  Simulator::Stop(Seconds(110));
-=======
+
 	  Simulator::Stop(Seconds(30));
->>>>>>> master
 	  Simulator::Run ();
 
 	  Simulator::Destroy ();
