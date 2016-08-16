@@ -8,8 +8,13 @@
 #include "sensor-data-sample.h"
 
 #include <sstream>
+#include <iomanip>
+
+#include "ns3/log.h"
 
 namespace ns3 {
+
+NS_LOG_COMPONENT_DEFINE("SensorDataSample");
 
 SensorDataSample::SensorDataSample(std::string sensorDataSample) {
 
@@ -52,15 +57,24 @@ SensorDataSample::SensorDataSample(){
 }
 
 SensorDataSample::SensorDataSample(double x, double y, double z){
+	NS_LOG_FUNCTION(this);
 	std::vector<double> sensorDataVector;
 	sensorDataVector.push_back(x);
 	sensorDataVector.push_back(y);
 	sensorDataVector.push_back(z);
 	m_sensorData = sensorDataVector;
 
-	std::stringstream ss;
-	ss << x << ", " << y << ", " << z;
+	std::stringstream ss(std::stringstream::in | std::stringstream::out);
+	ss << std::setprecision(5);
+	ss << x + 0.00001;
+	ss << ", ";
+	ss << std::setprecision(5);
+	ss << y+ 0.00001;
+	ss << ", ";
+	ss << std::setprecision(5);
+	ss << z+ 0.00001;
 	m_sensorDataSample = ss.str();
+	NS_LOG_DEBUG(m_sensorDataSample);
 }
 
 void

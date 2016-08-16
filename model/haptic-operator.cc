@@ -21,7 +21,7 @@
 #include "ns3/uinteger.h"
 #include "ns3/string.h"
 #include "ns3/double.h"
-
+#include "ns3/boolean.h"
 #include <cstdlib>
 #include <cstdio>
 namespace ns3 {
@@ -36,6 +36,8 @@ HapticOperator::HapticOperator() {
 	  m_socket = 0;
 	  m_sendEvent = EventId ();
 	  m_hapticFileSensor = 0;
+	  m_packetsSent = 0;
+	  m_reduction = nullptr;
 }
 
 HapticOperator::~HapticOperator() {
@@ -50,7 +52,7 @@ HapticOperator::GetTypeId (void)
     .SetGroupName("Applications")
     .AddConstructor<HapticOperator> ()
     .AddAttribute ("SamplingIntervalSeconds",
-                   "The time in seconds between two data samples.", DoubleValue (0.0001),
+                   "The time in seconds between two data samples.", DoubleValue (0.001),
                    MakeDoubleAccessor (&HapticOperator::m_interval),
                    MakeDoubleChecker<double>())
     .AddAttribute ("RemoteAddress",
@@ -73,6 +75,12 @@ HapticOperator::GetTypeId (void)
                    StringValue ("POSITION"),
                    MakeStringAccessor (&HapticOperator::m_fileType),
                    MakeStringChecker()
+				   )
+	.AddAttribute  ("ApplyDataReduction",
+				   "Set to true if data reduction should be applied.",
+				   BooleanValue (false),
+				   MakeBooleanAccessor(&HapticOperator::m_useDataReductionAlgorithm),
+				   MakeBooleanChecker()
 				   )
 
   ;
@@ -114,6 +122,9 @@ void
 HapticOperator::StartApplication (void)
 {
   NS_LOG_FUNCTION (this);
+
+  if (m_useDataReductionAlgorithm)
+	  m_reduction = std::unique_ptr<HapticDataReductionAlgorithm>{new  HapticDataReductionAlgorithm(0.2)};
 
   if (m_socket == 0)
     {
@@ -158,6 +169,7 @@ HapticOperator::StopApplication (void)
 {
   NS_LOG_FUNCTION (this);
   delete m_hapticFileSensor;
+  NS_LOG_DEBUG("Number of packets sent:" << m_packetsSent);
   Simulator::Cancel (m_sendEvent);
 }
 
@@ -199,6 +211,17 @@ HapticOperator::Send (void)
 	  //
 	  NS_LOG_DEBUG("SensorDataContent: " << sds.getSensorDataString());
 
+	  if (m_useDataReductionAlgorithm){
+		  // check if we need to transmit this sample - the algorithm works with velocity samples
+		  SensorDataSample velocity;
+		  m_hapticFileSensor->GetNextSensorDataSample(velocity,HapticFileSensor::VELOCITY);
+		  if (!m_reduction->needsToBeTransmitted(velocity.getSensorDataVector())){
+			  m_sendEvent = Simulator::Schedule (Seconds( m_interval), &HapticOperator::Send, this);
+			  return;
+		  }
+
+
+	  }
 	  //
 	  //	Wrap it in a HapticHeader to prepare data to be
 	  //	send over the wire
@@ -236,6 +259,8 @@ HapticOperator::Send (void)
 	    }
 
 	      m_sendEvent = Simulator::Schedule (Seconds( m_interval), &HapticOperator::Send, this);
+	      m_packetsSent++;
+	      NS_LOG_DEBUG("Packets sent: " << m_packetsSent);
 
   }
   else{
