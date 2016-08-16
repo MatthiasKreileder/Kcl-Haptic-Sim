@@ -42,7 +42,7 @@ HapticTeleOperator::GetTypeId (void)
                    MakeUintegerAccessor (&HapticTeleOperator::m_port),
                    MakeUintegerChecker<uint16_t> ())
     .AddAttribute ("SamplingIntervalSeconds",
-                   "The time in seconds between two data samples.", DoubleValue (0.0001),
+                   "The time in seconds between two data samples.", DoubleValue (0.001),
                    MakeDoubleAccessor (&HapticTeleOperator::m_interval),
                    MakeDoubleChecker<double>())
     .AddAttribute ("FileName",
@@ -51,6 +51,12 @@ HapticTeleOperator::GetTypeId (void)
                    MakeStringAccessor (&HapticTeleOperator::m_fileName),
                    MakeStringChecker()
  			   	  )
+	.AddAttribute ("ApplyDataReduction",
+				   "Set to true if data reduction should be applied.",
+				   BooleanValue (false),
+				   MakeBooleanAccessor(&HapticTeleOperator::m_useDataReductionAlgorithm),
+				   MakeBooleanChecker()
+				  )
   ;
   return tid;
 }
@@ -60,6 +66,9 @@ HapticTeleOperator::HapticTeleOperator(){
 	m_hapticFileSensor = 0;
 	m_hapticOperatorAddressIsSet = false;
 	m_readSensorDataEvent = EventId ();
+	m_reduction = nullptr;
+	m_useDataReductionAlgorithm = false;
+	m_packetsSent = 0;
 }
 
 HapticTeleOperator::~HapticTeleOperator(){
@@ -79,6 +88,9 @@ void
 HapticTeleOperator::StartApplication (void)
 {
   NS_LOG_FUNCTION (this);
+
+  if (m_useDataReductionAlgorithm)
+	  m_reduction = std::unique_ptr<HapticDataReductionAlgorithm>{new  HapticDataReductionAlgorithm(0.2)};
 
   if (m_socket == 0)
     {
@@ -145,6 +157,7 @@ HapticTeleOperator::StopApplication ()
     }
 
   delete m_hapticFileSensor;
+  NS_LOG_DEBUG("Packet sent: " << m_packetsSent);
   Simulator::Cancel (m_readSensorDataEvent);
 }
 
@@ -164,7 +177,7 @@ HapticTeleOperator::HandleRead (Ptr<Socket> socket)
 	  if(!m_hapticOperatorAddressIsSet){
 		  m_hapticOperatorAddress = from;
 		  m_hapticOperatorAddressIsSet = true;
-		  m_readSensorDataEvent = Simulator::Schedule (Seconds (0.0), &HapticTeleOperator::ReadSensorData, this);
+		  //m_readSensorDataEvent = Simulator::Schedule (Seconds (0.0), &HapticTeleOperator::ReadSensorData, this);
 		  ReadSensorData();
 	  }
 
@@ -191,9 +204,15 @@ HapticTeleOperator::ReadSensorData ()
 	  //NS_ASSERT (m_readSensorDataEvent.IsExpired ());
 
 	  SensorDataSample sds;
-	  // on the HapticOperator side we want to send velocity samples
+	  // on the HapticTeleOperator side we want to send velocity samples
 	  if(m_hapticFileSensor->GetNextSensorDataSample(sds,HapticFileSensor::FORCEFEEDBACK)){
 
+		  if (m_useDataReductionAlgorithm){
+			  if (!m_reduction->needsToBeTransmitted(sds.getSensorDataVector())){
+				  m_readSensorDataEvent = Simulator::Schedule (Seconds( m_interval), &HapticTeleOperator::ReadSensorData, this);
+				  return;
+			  }
+		  }
 		  //
 		  //	We made it here => there is still data to send
 		  //
@@ -223,7 +242,8 @@ HapticTeleOperator::ReadSensorData ()
 //		      peerAddressStringStream << Ipv6Address::ConvertFrom (m_hapticOperatorAddress);
 //		      SendPriv(m_socket6,p,peerAddressStringStream.str());
 //		    }
-
+		  m_packetsSent++;
+		  NS_LOG_DEBUG("Packet sent: " << m_packetsSent);
 		      m_readSensorDataEvent = Simulator::Schedule (Seconds(m_interval), &HapticTeleOperator::ReadSensorData, this);
 
 	  }

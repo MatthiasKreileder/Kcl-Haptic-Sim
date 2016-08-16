@@ -9,9 +9,11 @@
 //#include "../include/HapticDataReductionAlgorithm.h"
 #include <stdexcept>
 #include <cmath>
-
+#include "ns3/log.h"
+#include <sstream>
 namespace ns3 {
 
+NS_LOG_COMPONENT_DEFINE("HapticDataReductionAlgorithm");
 
 HapticDataReductionAlgorithm::HapticDataReductionAlgorithm(double deadBand) {
 
@@ -72,11 +74,22 @@ bool HapticDataReductionAlgorithm::needsToBeTransmittedPriv(const std::vector<do
     }
     diffVectorLegth = sqrt(diffVectorLegth);
 
-    if(diffVectorLegth >= m_deadBand*lengthLastTransmittedSample){
-		m_lastSample = currentSensorSample;
+
+	std::stringstream currentSampleStream;
+	std::stringstream lastSampleStream;
+	for (size_t i = 0; i < currentSensorSample.size(); i++){
+		currentSampleStream << currentSensorSample[i] << " ";
+		lastSampleStream << m_lastSample[i] << " ";
+	}
+	NS_LOG_DEBUG("diffVectorLegth: " << diffVectorLegth << " m_deadBand*lengthLastTransmittedSample: " << m_deadBand*lengthLastTransmittedSample);
+    if(diffVectorLegth > m_deadBand*lengthLastTransmittedSample){
+
+    	NS_LOG_DEBUG("Current " << currentSampleStream.str() << " last: " << lastSampleStream.str() << " needs to be transmitted");
+    	m_lastSample = currentSensorSample;
         return true;
     }
     else{
+    	NS_LOG_DEBUG("Current " << currentSampleStream.str() << " last: " << lastSampleStream.str() << " does not needs to be transmitted");
         return false;
     }
 

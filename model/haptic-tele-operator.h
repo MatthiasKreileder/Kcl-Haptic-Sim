@@ -11,12 +11,14 @@
 #include <stdlib.h>
 #include <string>
 #include <sstream>
+#include <memory>
 
 #include "ns3/socket.h"
 #include "ns3/address.h"
 #include "ns3/application.h"
 
 #include "ns3/haptic-file-sensor.h"
+#include "haptic-data-reduction-algorithm.h"
 
 namespace ns3 {
 
@@ -76,6 +78,12 @@ private:
   std::string m_fileName; //!< holds the name (+ path) of the file which contains the recorded force feedback data samples
 
   EventId m_readSensorDataEvent;
+
+  bool m_useDataReductionAlgorithm;
+  uint m_deadband;
+  std::unique_ptr<HapticDataReductionAlgorithm> m_reduction;
+
+  int m_packetsSent;
 };
 
 } /* namespace ns3 */
