@@ -15,8 +15,9 @@
 #include "ns3/socket.h"
 
 #include "haptic-file-sensor.h"
-
+#include "haptic-data-reduction-algorithm.h"
 #include <string>
+#include <memory>
 
 namespace ns3 {
 
@@ -81,6 +82,12 @@ private:
 
   Ptr<Socket> m_socket; //!< Socket
   EventId m_sendEvent; //!< Event to send the next packet
+
+  bool m_useDataReductionAlgorithm;
+  uint m_deadband;
+  std::unique_ptr<HapticDataReductionAlgorithm> m_reduction;
+
+  int m_packetsSent;
 };
 
 } /* namespace ns3 */

@@ -12,10 +12,13 @@ def build(bld):
        'model/sensor-data-sample.cc',
        'model/haptic-header.cc',
        'model/haptic-operator.cc',
+       'model/data-reduction-algorithm.cc',
+       'model/no-data-reduction-algorithm.cc',
        'model/haptic-tele-operator.cc',
        'model/chai3d-server.cc',
        'model/named-pipe-handler.cc',
        'model/phantom-agent.cc',
+       'model/haptic-data-reduction-algorithm.cc',
        'helper/haptic-operator-helper.cc',
        'helper/haptic-tele-operator-helper.cc',
        'helper/position-to-velocity-conversion.cc',
@@ -38,7 +41,8 @@ def build(bld):
         'test/haptic-operator-test-suite.cc',
         'test/haptic-tele-operator-test-suite.cc',
         'test/position-to-velocity-conversion-test-suite.cc',
-        'test/chai3d-server-test-suite.cc'
+        'test/chai3d-server-test-suite.cc',
+        'test/haptic-data-reduction-algorithm-test-suite.cc'
         ]
 
     headers = bld(features='ns3header')
@@ -48,10 +52,13 @@ def build(bld):
        'model/sensor-data-sample.h',
        'model/haptic-header.h',
        'model/haptic-operator.h',
+       'model/data-reduction-algorithm.h',
+       'model/no-data-reduction-algorithm.h',
        'model/haptic-tele-operator.h',
        'model/chai3d-server.h',
        'model/named-pipe-handler.h',
        'model/phantom-agent.h',
+       'model/haptic-data-reduction-algorithm.h',
        'helper/haptic-operator-helper.h',
        'helper/haptic-tele-operator-helper.h',
        'helper/position-to-velocity-conversion.h',

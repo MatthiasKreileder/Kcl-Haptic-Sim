@@ -70,7 +70,7 @@ HapticOperatorBaseTestCase::DoRun()
 	//
 	  CsmaHelper csma;
 	  csma.SetChannelAttribute ("DataRate", DataRateValue (DataRate (5000000)));
-	  csma.SetChannelAttribute ("Delay", TimeValue (MilliSeconds (2)));
+	  csma.SetChannelAttribute ("Delay", TimeValue (MilliSeconds (0.1)));
 	  csma.SetDeviceAttribute ("Mtu", UintegerValue (1400));
 	  NetDeviceContainer d = csma.Install (n);
 
@@ -110,12 +110,13 @@ HapticOperatorBaseTestCase::DoRun()
 
 	  double interPacketInterval = 0.001;
 	  HapticOperatorHelper client (serverAddress, port);
-	  client.SetAttribute ("FileName", StringValue ("src/Kcl-Haptic-Sim/test/test_pos.txt"));
+	  client.SetAttribute ("FileName", StringValue ("src/Kcl-Haptic-Sim/test/position.txt"));
 	  client.SetAttribute ("SamplingIntervalSeconds", DoubleValue (interPacketInterval));
 	  client.SetAttribute ("FileType", StringValue ("POSITION"));
+	  client.SetAttribute ("ApplyDataReduction", BooleanValue (true));
 	  apps = client.Install (n.Get (0));
 	  apps.Start (Seconds (2.0));
-	  apps.Stop (Seconds (10.0));
+	  apps.Stop (Seconds (100.0));
 
 
 

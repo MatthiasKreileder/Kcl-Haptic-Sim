@@ -101,11 +101,12 @@ HapticTeleOperatorBaseTestCase::DoRun()
 	  double interPacketInterval = 0.001;
 	  uint16_t port = 9;  // well-known echo port number
 	  HapticTeleOperatorHelper server (port);
-	  server.SetAttribute("FileName", StringValue ("src/Kcl-Haptic-Sim/test/test_force.txt"));
+	  server.SetAttribute("FileName", StringValue ("src/Kcl-Haptic-Sim/test/force.txt"));
 	  server.SetAttribute ("SamplingIntervalSeconds", DoubleValue (interPacketInterval));
+	  server.SetAttribute ("ApplyDataReduction", BooleanValue (true));
 	  ApplicationContainer apps = server.Install (n.Get (1));
 	  apps.Start (Seconds (1.0));
-	  apps.Stop (Seconds (10.0));
+	  apps.Stop (Seconds (30.0));
 
 
 
@@ -116,12 +117,12 @@ HapticTeleOperatorBaseTestCase::DoRun()
 
 
 	  HapticOperatorHelper client (serverAddress, port);
-	  client.SetAttribute ("FileName", StringValue ("src/Kcl-Haptic-Sim/test/test_pos.txt"));
+	  client.SetAttribute ("FileName", StringValue ("src/Kcl-Haptic-Sim/test/position.txt"));
 	  client.SetAttribute ("SamplingIntervalSeconds", DoubleValue (interPacketInterval));
 	  client.SetAttribute ("FileType", StringValue ("POSITION"));
 	  apps = client.Install (n.Get (0));
 	  apps.Start (Seconds (2.0));
-	  apps.Stop (Seconds (10.0));
+	  apps.Stop (Seconds (30.0));
 
 
 
