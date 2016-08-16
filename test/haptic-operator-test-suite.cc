@@ -110,9 +110,9 @@ HapticOperatorBaseTestCase::DoRun()
 
 	  double interPacketInterval = 0.001;
 	  HapticOperatorHelper client (serverAddress, port);
-	  client.SetAttribute ("FileName", StringValue ("src/Kcl-Haptic-Sim/test/position.txt"));
+	  client.SetAttribute ("PositionFile", StringValue ("src/Kcl-Haptic-Sim/test/position.txt"));
+	  client.SetAttribute ("VelocityFile", StringValue ("src/Kcl-Haptic-Sim/test/fakeVelocity.txt"));
 	  client.SetAttribute ("SamplingIntervalSeconds", DoubleValue (interPacketInterval));
-	  client.SetAttribute ("FileType", StringValue ("POSITION"));
 	  client.SetAttribute ("ApplyDataReduction", BooleanValue (true));
 	  apps = client.Install (n.Get (0));
 	  apps.Start (Seconds (2.0));

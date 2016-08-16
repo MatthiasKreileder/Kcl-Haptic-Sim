@@ -19,6 +19,7 @@
 #include "ns3/socket-factory.h"
 #include "ns3/packet.h"
 #include "ns3/uinteger.h"
+#include "ns3/integer.h"
 #include "ns3/string.h"
 #include "ns3/double.h"
 #include "ns3/boolean.h"
@@ -38,6 +39,7 @@ HapticOperator::HapticOperator() {
 	  m_hapticFileSensor = 0;
 	  m_packetsSent = 0;
 	  m_reduction = nullptr;
+	  m_deadband = 0.3;
 }
 
 HapticOperator::~HapticOperator() {
@@ -64,16 +66,16 @@ HapticOperator::GetTypeId (void)
                    UintegerValue (100),
                    MakeUintegerAccessor (&HapticOperator::m_peerPort),
                    MakeUintegerChecker<uint16_t> ())
-    .AddAttribute ("FileName",
-                   "The name of the file which contains the recorded haptic data.",
-                   StringValue ("src/Kcl-Haptic-Sim/test/test_pos.txt"),
-                   MakeStringAccessor (&HapticOperator::m_fileName),
-                   MakeStringChecker()
+	.AddAttribute ("PositionFile",
+				   "The file that contains the position samples.",
+				   StringValue ("src/Kcl-Haptic-Sim/test/position.txt"),
+				   MakeStringAccessor (&HapticOperator::m_positionFile),
+				   MakeStringChecker()
 				   )
-	.AddAttribute ("FileType",
-                   "Indicates the type of the recorded data, candidates are: POSITION,VELOCITY.",
-                   StringValue ("POSITION"),
-                   MakeStringAccessor (&HapticOperator::m_fileType),
+	.AddAttribute ("VelocityFile",
+				   "The file that contains the velocity samples.",
+				   StringValue ("src/Kcl-Haptic-Sim/test/faleVosition.txt"),
+                   MakeStringAccessor (&HapticOperator::m_velocityFile),
                    MakeStringChecker()
 				   )
 	.AddAttribute  ("ApplyDataReduction",
@@ -123,8 +125,9 @@ HapticOperator::StartApplication (void)
 {
   NS_LOG_FUNCTION (this);
 
-  if (m_useDataReductionAlgorithm)
-	  m_reduction = std::unique_ptr<HapticDataReductionAlgorithm>{new  HapticDataReductionAlgorithm(0.2)};
+  if (m_useDataReductionAlgorithm){
+	  m_reduction = std::unique_ptr<HapticDataReductionAlgorithm>{new  HapticDataReductionAlgorithm(0.05)};
+  }
 
   if (m_socket == 0)
     {
@@ -146,18 +149,18 @@ HapticOperator::StartApplication (void)
   m_socket->SetAllowBroadcast (true);
 
 
-  if(m_fileType.compare("POSITION") == 0){
-	  m_hapticSensorFileType = HapticFileSensor::POSITION;
-  }
-  else if (m_fileType.compare("VELOCITY") == 0){
-	  m_hapticSensorFileType = HapticFileSensor::VELOCITY;
-  }
-  else{
-	  NS_ASSERT_MSG(m_fileType.compare("FORCEFEEDBACK") == 0,"Un-known file type, options are: POSITION, VELOCITY or FORCEFEEDBACK");
-	  m_hapticSensorFileType = HapticFileSensor::FORCEFEEDBACK;
-  }
+//  if(m_fileType.compare("POSITION") == 0){
+//	  m_hapticSensorFileType = HapticFileSensor::POSITION;
+//  }
+//  else if (m_fileType.compare("VELOCITY") == 0){
+//	  m_hapticSensorFileType = HapticFileSensor::VELOCITY;
+//  }
+//  else{
+//	  NS_ASSERT_MSG(m_fileType.compare("FORCEFEEDBACK") == 0,"Un-known file type, options are: POSITION, VELOCITY or FORCEFEEDBACK");
+//	  m_hapticSensorFileType = HapticFileSensor::FORCEFEEDBACK;
+//  }
 
-  m_hapticFileSensor = new HapticFileSensor(m_fileName,m_hapticSensorFileType, m_interval);
+  m_hapticFileSensor = new HapticFileSensor(m_positionFile,m_velocityFile);
 
 
 
@@ -202,7 +205,7 @@ HapticOperator::Send (void)
   NS_ASSERT (m_sendEvent.IsExpired ());
 
   SensorDataSample sds;
-  // on the HapticOperator side we want to send velocity samples
+  // on the HapticOperator side we want to send position samples
   // ToDo: Think about sending Velocity + Position samples
   if(m_hapticFileSensor->GetNextSensorDataSample(sds,HapticFileSensor::POSITION)){
 
@@ -254,8 +257,7 @@ HapticOperator::Send (void)
 	    }
 	  else
 	    {
-	      NS_LOG_INFO ("Error while sending to"
-	                                          << peerAddressStringStream.str ());
+	      NS_LOG_INFO ("Error while sending to" << peerAddressStringStream.str ());
 	    }
 
 	      m_sendEvent = Simulator::Schedule (Seconds( m_interval), &HapticOperator::Send, this);

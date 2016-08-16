@@ -90,7 +90,7 @@ HapticTeleOperator::StartApplication (void)
   NS_LOG_FUNCTION (this);
 
   if (m_useDataReductionAlgorithm)
-	  m_reduction = std::unique_ptr<HapticDataReductionAlgorithm>{new  HapticDataReductionAlgorithm(0.2)};
+	  m_reduction = std::unique_ptr<HapticDataReductionAlgorithm>{new  HapticDataReductionAlgorithm(0.05)};
 
   if (m_socket == 0)
     {
@@ -134,7 +134,7 @@ HapticTeleOperator::StartApplication (void)
         }
     }
 
-  m_hapticFileSensor = new HapticFileSensor(m_fileName,HapticFileSensor::FORCEFEEDBACK,m_interval);
+  m_hapticFileSensor = new HapticFileSensor(m_fileName);
 
   m_socket->SetRecvCallback (MakeCallback (&HapticTeleOperator::HandleRead, this));
   m_socket6->SetRecvCallback (MakeCallback (&HapticTeleOperator::HandleRead, this));

@@ -32,6 +32,27 @@ HapticFileSensor::HapticFileSensor(std::string fileName, HapticFileSensor::Senso
 
 }
 
+HapticFileSensor::HapticFileSensor(std::string forceSamplesFileName){
+	NS_LOG_FUNCTION(this << " Filename: " << forceSamplesFileName);
+
+	m_posData = std::deque<SensorDataSample>();
+	m_velocityData = std::deque<SensorDataSample>();
+	m_forceData = std::deque<SensorDataSample>();
+
+	ReadSensorDataSamples(forceSamplesFileName,m_forceData);
+}
+
+HapticFileSensor::HapticFileSensor(std::string positionSamplesFileName, std::string velocitySamplesFileName){
+	NS_LOG_FUNCTION(this << " positionSamplesFileName: " << positionSamplesFileName << " velocitySamplesFileName: " << velocitySamplesFileName);
+
+	m_posData = std::deque<SensorDataSample>();
+	m_velocityData = std::deque<SensorDataSample>();
+	m_forceData = std::deque<SensorDataSample>();
+
+	ReadSensorDataSamples(positionSamplesFileName,m_posData);
+	ReadSensorDataSamples(velocitySamplesFileName,m_velocityData);
+}
+
 void HapticFileSensor::ReadSensorDataSamples(std::string fileName, std::deque<SensorDataSample>& sdsContainer){
 	NS_LOG_FUNCTION("Filename: " << fileName);
 	/*

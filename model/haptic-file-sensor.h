@@ -35,6 +35,10 @@ public:
 	 */
 	HapticFileSensor(std::string fileName, HapticFileSensor::SensorFileType type, double interSampleSeconds);
 
+	HapticFileSensor(std::string forceSamplesFileName);
+
+	HapticFileSensor(std::string positionSamplesFileName, std::string velocitySamplesFileName);
+
 	/**
 	 *
 	 * \param type Gets the all SensorDataSample objects for the specified type stored in a deque<T> container
