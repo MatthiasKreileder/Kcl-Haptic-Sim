@@ -14,11 +14,13 @@ def build(bld):
        'model/named-pipe-handler.cc',
        'model/haptic-data-reduction-algorithm.cc',
        'model/tcp-haptic-operator.cc',
+       'model/tcp-haptic-tele-operator.cc',
        'helper/haptic-operator-helper.cc',
        'helper/haptic-tele-operator-helper.cc',
        'helper/position-to-velocity-conversion.cc',
        'helper/chai3d-server-helper.cc',
-       'helper/tcp-haptic-operator-helper.cc'
+       'helper/tcp-haptic-operator-helper.cc',
+       'helper/tcp-haptic-tele-operator-helper.cc',
         ]
     obj.cxxflags = ['-std=c++11']
 
@@ -49,11 +51,13 @@ def build(bld):
        'model/named-pipe-handler.h',
        'model/haptic-data-reduction-algorithm.h',
        'model/tcp-haptic-operator.h',
+       'model/tcp-haptic-operator.h',
        'helper/haptic-operator-helper.h',
        'helper/haptic-tele-operator-helper.h',
        'helper/position-to-velocity-conversion.h',
        'helper/chai3d-server-helper.h',
-       'helper/tcp-haptic-operator-helper.h'
+       'helper/tcp-haptic-operator-helper.h',
+       'helper/tcp-haptic-tele-operator-helper.h',
         ]
 
     
