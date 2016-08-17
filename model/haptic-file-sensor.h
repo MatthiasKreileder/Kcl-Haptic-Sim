@@ -1,3 +1,5 @@
+#ifndef SRC_KCL_HAPTIC_FILE_SENSOR_H_
+#define SRC_KCL_HAPTIC_FILE_SENSOR_H_
 
 #include <iostream>
 #include <string>
@@ -76,3 +78,4 @@ private:
 };
 
 }
+#endif

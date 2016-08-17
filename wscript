@@ -13,10 +13,12 @@ def build(bld):
        'model/chai3d-server.cc',
        'model/named-pipe-handler.cc',
        'model/haptic-data-reduction-algorithm.cc',
+       'model/tcp-haptic-operator.cc',
        'helper/haptic-operator-helper.cc',
        'helper/haptic-tele-operator-helper.cc',
        'helper/position-to-velocity-conversion.cc',
-       'helper/chai3d-server-helper.cc'
+       'helper/chai3d-server-helper.cc',
+       'helper/tcp-haptic-operator-helper.cc'
         ]
     obj.cxxflags = ['-std=c++11']
 
@@ -29,7 +31,8 @@ def build(bld):
         'test/haptic-tele-operator-test-suite.cc',
         'test/position-to-velocity-conversion-test-suite.cc',
         'test/chai3d-server-test-suite.cc',
-        'test/haptic-data-reduction-algorithm-test-suite.cc'
+        'test/haptic-data-reduction-algorithm-test-suite.cc',
+        'test/tcp-haptic-operator-test-suite.cc'
         ]
 
     headers = bld(features='ns3header')
@@ -45,10 +48,12 @@ def build(bld):
        'model/chai3d-server.h',
        'model/named-pipe-handler.h',
        'model/haptic-data-reduction-algorithm.h',
+       'model/tcp-haptic-operator.h',
        'helper/haptic-operator-helper.h',
        'helper/haptic-tele-operator-helper.h',
        'helper/position-to-velocity-conversion.h',
-       'helper/chai3d-server-helper.h'
+       'helper/chai3d-server-helper.h',
+       'helper/tcp-haptic-operator-helper.h'
         ]
 
     

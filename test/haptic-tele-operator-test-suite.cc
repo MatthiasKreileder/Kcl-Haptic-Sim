@@ -17,6 +17,7 @@
 #include "ns3/csma-module.h"
 #include "ns3/applications-module.h"
 #include "ns3/internet-module.h"
+#include "ns3/flow-monitor-module.h"
 
 #include <string>
 
@@ -48,6 +49,7 @@ HapticTeleOperatorBaseTestCase::HapticTeleOperatorBaseTestCase()
 void
 HapticTeleOperatorBaseTestCase::DoRun()
 {
+
 
 	//
 	// Allow the user to override any of the defaults and the above Bind() at
@@ -101,12 +103,12 @@ HapticTeleOperatorBaseTestCase::DoRun()
 	  double interPacketInterval = 0.001;
 	  uint16_t port = 9;  // well-known echo port number
 	  HapticTeleOperatorHelper server (port);
-	  server.SetAttribute("FileName", StringValue ("src/Kcl-Haptic-Sim/test/force.txt"));
+	  server.SetAttribute("FileName", StringValue ("src/Kcl-Haptic-Sim/test/test_force.txt"));
 	  server.SetAttribute ("SamplingIntervalSeconds", DoubleValue (interPacketInterval));
 	  server.SetAttribute ("ApplyDataReduction", BooleanValue (true));
 	  ApplicationContainer apps = server.Install (n.Get (1));
 	  apps.Start (Seconds (1.0));
-	  apps.Stop (Seconds (30.0));
+	  apps.Stop (Seconds (3.0));
 
 
 
@@ -118,20 +120,29 @@ HapticTeleOperatorBaseTestCase::DoRun()
 
 	  HapticOperatorHelper client (serverAddress, port);
 	  client.SetAttribute ("SamplingIntervalSeconds", DoubleValue (interPacketInterval));
-	  client.SetAttribute ("PositionFile", StringValue ("src/Kcl-Haptic-Sim/test/position.txt"));
+	  client.SetAttribute ("PositionFile", StringValue ("src/Kcl-Haptic-Sim/test/test_position.txt"));
 	  client.SetAttribute ("VelocityFile", StringValue ("src/Kcl-Haptic-Sim/test/fakeVelocity.txt"));
 	  server.SetAttribute ("ApplyDataReduction", BooleanValue (true));
 	  apps = client.Install (n.Get (0));
 	  apps.Start (Seconds (2.0));
-	  apps.Stop (Seconds (30.0));
+	  apps.Stop (Seconds (3.0));
 
-
+	  // Flow monitor
+	  Ptr<FlowMonitor> flowMonitor;
+	  FlowMonitorHelper flowHelper;
+	  NodeContainer nc;
+	  nc.Add(n.Get(0));
+	  nc.Add(n.Get(1));
+	  flowMonitor = flowHelper.Install(nc);
 
 	//
 	// Now, do the actual simulation.
 	//
-
+	  Simulator::Stop (Seconds (4.0));
 	  Simulator::Run ();
+
+	  flowMonitor->SerializeToXmlFile("NameOfFile1.xml", true, true);
+
 	  Simulator::Destroy ();
 
 
