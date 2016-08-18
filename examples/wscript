@@ -1,0 +1,9 @@
+# -*- Mode: python; py-indent-offset: 4; indent-tabs-mode: nil; coding: utf-8; -*-
+
+def build(bld):
+    obj = bld.create_ns3_program('kcl-module-example', ['Kcl-Haptic-Sim'])
+    obj.source = 'kcl-module-example.cc'
+    
+    obj = bld.create_ns3_program('kcl-ethernet-udp-example', ['Kcl-Haptic-Sim','internet','network','applications','csma','point-to-point','flow-monitor'])
+    obj.source = 'kcl-ethernet-udp-example.cc'
+

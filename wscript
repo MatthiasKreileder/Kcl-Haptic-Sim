@@ -68,4 +68,5 @@ def build(bld):
        'helper/phantom-agent-helper.h'
         ]
 
-    
+    if bld.env.ENABLE_EXAMPLES:
+        bld.recurse('examples')    
