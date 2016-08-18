@@ -1,5 +1,4 @@
-/*
- * chai3d-server.h
+/* * chai3d-server.h
  *
  *  Created on: 25 Jul 2016
  *      Author: matthias
@@ -30,6 +29,7 @@
 //#include <boost/bind.hpp>
 
 #include "named-pipe-handler.h"
+#include "shared-memory-handler.h"
 
 namespace ns3 {
 
@@ -95,6 +95,7 @@ private:
   uint16_t m_phantomAgentPort; //!< Remote peer port
 
   NamedPipeHandler* m_nph;
+  SharedMemoryHandler* m_sharedMemHandler;
 
 };
 

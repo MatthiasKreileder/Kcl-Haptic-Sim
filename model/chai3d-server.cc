@@ -28,12 +28,13 @@ Chai3dServer::Chai3dServer() {
 //	namedPipes_lock.lock();
 //	namedPipes_lock.unlock();
 
-
+	m_sharedMemHandler = new SharedMemoryHandler();
 
 }
 
 Chai3dServer::~Chai3dServer() {
 	NS_LOG_FUNCTION(this);
+	delete m_sharedMemHandler;
 }
 
 TypeId
@@ -101,6 +102,27 @@ Chai3dServer::HandleRead (Ptr<Socket> socket)
 	  NS_LOG_DEBUG("Sending haptic message to chai3d");
 
 	  m_nph->SafeWrite(s);
+
+	  ////////////////////////////////////////////////////
+	  m_sharedMemHandler->KclSafeWrite(s);
+	  std::string answer;
+	  m_sharedMemHandler->KclSafeRead(answer);
+	  NS_LOG_DEBUG("Answer: " << answer);
+
+	  /*
+	   * Extract message
+	   */
+	  std::size_t firstHashTag = answer.find_first_of('#');
+	  if(firstHashTag == 0){
+		  // no force sample from chai3d available => nothing for us to do
+		  return;
+	  }
+	  else{
+		  std::string packetForPhantom = answer.substr(0,firstHashTag);
+		  NS_LOG_DEBUG("packetForPhantom " << packetForPhantom);
+	  }
+
+	  ////////////////////////////////////////////////////
 
 	  std::string msg_from_chai3d;
 	  m_nph->SafeRead(msg_from_chai3d);
