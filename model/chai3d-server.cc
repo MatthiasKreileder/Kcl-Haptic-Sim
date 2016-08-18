@@ -84,7 +84,7 @@ Chai3dServer::DoDispose (void)
 void
 Chai3dServer::HandleRead (Ptr<Socket> socket)
 {
-  NS_LOG_FUNCTION (this << socket);
+  //NS_LOG_FUNCTION (this << socket);
 
   Ptr<Packet> packet;
   Address from;
@@ -95,19 +95,20 @@ Chai3dServer::HandleRead (Ptr<Socket> socket)
 
 	  packet->RemoveHeader(hapticHeader);
 
-	  NS_LOG_DEBUG(hapticHeader.GetHapticMessage());
+	  //NS_LOG_DEBUG(hapticHeader.GetHapticMessage());
 
 	  std::string s = hapticHeader.GetHapticMessage();
 
-	  NS_LOG_DEBUG("Sending haptic message to chai3d");
+	  //NS_LOG_DEBUG("Sending haptic message to chai3d");
 
-	  m_nph->SafeWrite(s);
+	  //m_nph->SafeWrite(s);
 
 	  ////////////////////////////////////////////////////
 	  m_sharedMemHandler->KclSafeWrite(s);
 	  std::string answer;
+	  //sleep(0.0001);
 	  m_sharedMemHandler->KclSafeRead(answer);
-	  NS_LOG_DEBUG("Answer: " << answer);
+
 
 	  /*
 	   * Extract message
@@ -115,27 +116,28 @@ Chai3dServer::HandleRead (Ptr<Socket> socket)
 	  std::size_t firstHashTag = answer.find_first_of('#');
 	  if(firstHashTag == 0){
 		  // no force sample from chai3d available => nothing for us to do
-		  return;
+
+		 NS_LOG_DEBUG("Nothing to do in this cycle");
 	  }
 	  else{
-		  std::string packetForPhantom = answer.substr(0,firstHashTag);
-		  NS_LOG_DEBUG("packetForPhantom " << packetForPhantom);
+		  std::string msg_from_chai3d =  answer.substr(0,firstHashTag);
+
+		  NS_LOG_DEBUG("Received " << msg_from_chai3d);
+
+		  HapticHeader hapticHeaderReturnPacket;
+		  hapticHeaderReturnPacket.SetHapticMessage(msg_from_chai3d);
+
+		  Ptr<Packet> packetForPhantom = Create<Packet> ();
+		  packetForPhantom->AddHeader(hapticHeaderReturnPacket);
+
+
+		  m_socket->SendTo(packetForPhantom,0,from);
+
 	  }
 
 	  ////////////////////////////////////////////////////
 
-	  std::string msg_from_chai3d;
-	  m_nph->SafeRead(msg_from_chai3d);
-	  NS_LOG_DEBUG("Received " << msg_from_chai3d);
 
-	  HapticHeader hapticHeaderReturnPacket;
-	  hapticHeaderReturnPacket.SetHapticMessage(msg_from_chai3d);
-
-	  Ptr<Packet> packetForPhantom = Create<Packet> ();
-	  packetForPhantom->AddHeader(hapticHeaderReturnPacket);
-
-
-	  m_socket->SendTo(packetForPhantom,0,from);
 
     }
 }
