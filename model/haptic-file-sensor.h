@@ -1,3 +1,5 @@
+#ifndef SRC_KCL_HAPTIC_FILE_SENSOR_H_
+#define SRC_KCL_HAPTIC_FILE_SENSOR_H_
 
 #include <iostream>
 #include <string>
@@ -34,6 +36,10 @@ public:
 	 * \param interSampleSeconds the time (measured in seconds) between two sensor samples, e.g. 0.001 => 1ms
 	 */
 	HapticFileSensor(std::string fileName, HapticFileSensor::SensorFileType type, double interSampleSeconds);
+
+	HapticFileSensor(std::string forceSamplesFileName);
+
+	HapticFileSensor(std::string positionSamplesFileName, std::string velocitySamplesFileName);
 
 	/**
 	 *
@@ -72,3 +78,4 @@ private:
 };
 
 }
+#endif

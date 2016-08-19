@@ -6,8 +6,8 @@
  */
 
 #include "ns3/test.h"
-#include "../helper/haptic-operator-helper.h"
-#include "../model/haptic-operator.h"
+#include "ns3/haptic-operator-helper.h"
+#include "ns3/haptic-operator.h"
 #include "ns3/packet.h"
 #include "ns3/log.h"
 
@@ -16,6 +16,7 @@
 #include "ns3/csma-module.h"
 #include "ns3/applications-module.h"
 #include "ns3/internet-module.h"
+#include "ns3/flow-monitor-module.h"
 
 #include <string>
 
@@ -101,7 +102,7 @@ HapticOperatorBaseTestCase::DoRun()
 	  UdpEchoServerHelper server (port);
 	  ApplicationContainer apps = server.Install (n.Get (1));
 	  apps.Start (Seconds (1.0));
-	  apps.Stop (Seconds (10.0));
+	  apps.Stop (Seconds (100.0));
 
 	//
 	// Create a HapticOperator application to send UDP datagrams from node zero to
@@ -110,21 +111,28 @@ HapticOperatorBaseTestCase::DoRun()
 
 	  double interPacketInterval = 0.001;
 	  HapticOperatorHelper client (serverAddress, port);
-	  client.SetAttribute ("FileName", StringValue ("src/Kcl-Haptic-Sim/test/position.txt"));
+	  client.SetAttribute ("PositionFile", StringValue ("src/Kcl-Haptic-Sim/test/position.txt"));
+	  client.SetAttribute ("VelocityFile", StringValue ("src/Kcl-Haptic-Sim/test/fakeVelocity.txt"));
 	  client.SetAttribute ("SamplingIntervalSeconds", DoubleValue (interPacketInterval));
-	  client.SetAttribute ("FileType", StringValue ("POSITION"));
 	  client.SetAttribute ("ApplyDataReduction", BooleanValue (true));
 	  apps = client.Install (n.Get (0));
 	  apps.Start (Seconds (2.0));
 	  apps.Stop (Seconds (100.0));
 
 
+	  Ptr<FlowMonitor> flowMonitor;
+	  FlowMonitorHelper flowHelper;
+	  NodeContainer nc;
+	  nc.Add(n.Get(0));
+	  nc.Add(n.Get(1));
+	  flowMonitor = flowHelper.Install(nc);
 
 	//
 	// Now, do the actual simulation.
 	//
-
+	  Simulator::Stop(Seconds(110.0));
 	  Simulator::Run ();
+	  flowMonitor->SerializeToXmlFile("NameOfFile1.xml", true, true);
 	  Simulator::Destroy ();
 
 

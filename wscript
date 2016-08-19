@@ -20,11 +20,15 @@ def build(bld):
        'model/phantom-agent.cc',
        'model/haptic-data-reduction-algorithm.cc',
        'model/shared-memory-handler.cc',
+       'model/tcp-haptic-operator.cc',
+       'model/tcp-haptic-tele-operator.cc',
        'helper/haptic-operator-helper.cc',
        'helper/haptic-tele-operator-helper.cc',
        'helper/position-to-velocity-conversion.cc',
        'helper/chai3d-server-helper.cc',
        'helper/phantom-agent-helper.cc'
+       'helper/tcp-haptic-operator-helper.cc',
+       'helper/tcp-haptic-tele-operator-helper.cc',
         ]
     obj.cxxflags = ['-std=c++11',
     				'-I /home/matthias/Development/install_dir/boost_install_dir/include/',
@@ -43,7 +47,8 @@ def build(bld):
         'test/haptic-tele-operator-test-suite.cc',
         'test/position-to-velocity-conversion-test-suite.cc',
         'test/chai3d-server-test-suite.cc',
-        'test/haptic-data-reduction-algorithm-test-suite.cc'
+        'test/haptic-data-reduction-algorithm-test-suite.cc',
+        'test/tcp-haptic-operator-test-suite.cc'
         ]
 
     headers = bld(features='ns3header')
@@ -61,11 +66,15 @@ def build(bld):
        'model/phantom-agent.h',
        'model/haptic-data-reduction-algorithm.h',
        'model/shared-memory-handler.h',
+       'model/tcp-haptic-operator.h',
+       'model/tcp-haptic-operator.h',
        'helper/haptic-operator-helper.h',
        'helper/haptic-tele-operator-helper.h',
        'helper/position-to-velocity-conversion.h',
        'helper/chai3d-server-helper.h',
        'helper/phantom-agent-helper.h'
+       'helper/tcp-haptic-operator-helper.h',
+       'helper/tcp-haptic-tele-operator-helper.h',
         ]
 
     if bld.env.ENABLE_EXAMPLES:

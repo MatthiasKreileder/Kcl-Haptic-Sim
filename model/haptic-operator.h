@@ -76,18 +76,18 @@ private:
   uint16_t m_peerPort; //!< Remote peer port
 
   HapticFileSensor* m_hapticFileSensor;	//!< The interface to the recorded data
-  std::string m_fileName;
-  std::string m_fileType; //!< Indicates what type of data the provided file contains
-  HapticFileSensor::FileType m_hapticSensorFileType;
 
   Ptr<Socket> m_socket; //!< Socket
   EventId m_sendEvent; //!< Event to send the next packet
 
   bool m_useDataReductionAlgorithm;
-  uint m_deadband;
+  int m_deadband;
   std::unique_ptr<HapticDataReductionAlgorithm> m_reduction;
 
   int m_packetsSent;
+
+  std::string m_positionFile;
+  std::string m_velocityFile;
 };
 
 } /* namespace ns3 */
