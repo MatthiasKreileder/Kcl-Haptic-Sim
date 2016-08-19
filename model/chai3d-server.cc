@@ -84,13 +84,13 @@ Chai3dServer::DoDispose (void)
 void
 Chai3dServer::HandleRead (Ptr<Socket> socket)
 {
-  //NS_LOG_FUNCTION (this << socket);
+  NS_LOG_FUNCTION (this << socket);
 
   Ptr<Packet> packet;
   Address from;
   while ((packet = socket->RecvFrom (from)))
     {
-
+	  NS_LOG_FUNCTION("Packet from: " << from);
 	  HapticHeader hapticHeader;
 
 	  packet->RemoveHeader(hapticHeader);

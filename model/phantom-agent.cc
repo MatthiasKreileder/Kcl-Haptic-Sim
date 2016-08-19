@@ -104,21 +104,28 @@ void PhantomAgent::ReadPacketFromChai3D (Ptr<Socket> socket){
 		/*
 		 * Check if the received packet is from the Chai3DAgent we are talking to
 		 */
-		if (InetSocketAddress::ConvertFrom (m_chai3dAgentAddress).GetIpv4 ()
-				!=
-			InetSocketAddress::ConvertFrom (from).GetIpv4 ())
-		{
+//		if (InetSocketAddress::ConvertFrom (m_chai3dAgentAddress).GetIpv4 ()
+//				!=
+//			InetSocketAddress::ConvertFrom (from).GetIpv4 ())
+//		{
 
-			NS_LOG_DEBUG("Received packet from un-known source: " << from);
-			return;
+//			NS_LOG_DEBUG("Received packet from un-known source: " << from);
+//			return;
+//		}
+
+		int returnVal = m_socketForCommunicationWithPhantomOmni->SendTo(packet,0,m_phantomAddress);
+		if(returnVal == -1){
+			NS_LOG_DEBUG("Error while sending");
 		}
-
-		m_socketForCommunicationWithPhantomOmni->SendTo(packet,0,m_phantomAddress);
+		else
+		{
+			NS_LOG_DEBUG("Sending data to windows");
+		}
 	}
 }
 
 void PhantomAgent::ReadPacketFromPhantom (Ptr<Socket> socket){
-	NS_LOG_FUNCTION(this);
+	//NS_LOG_FUNCTION(this);
 
 	Ptr<Packet> packet;
 	Address from;

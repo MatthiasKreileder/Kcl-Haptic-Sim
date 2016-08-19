@@ -19,6 +19,8 @@
 #include "ns3/chai3d-server-helper.h"
 #include "ns3/haptic-operator-helper.h"
 #include "ns3/flow-monitor-module.h"
+#include "ns3/emu-fd-net-device-helper.h"
+#include "ns3/phantom-agent-helper.h"
 #include <sstream>
 //#include "ns3/gtk-config-store.h"
 
@@ -109,6 +111,30 @@ main (int argc, char *argv[])
   enbNodes.Create(numberOfNodes);
   ueNodes.Create(numberOfNodes);
 
+  /////////////////////////////////////////////////////////////////////////////////////////////
+
+  std::string netmask ("255.255.0.0");
+  Ipv4Mask localMask (netmask.c_str ());
+
+  std::string server ("172.16.25.125");
+  Ipv4Address localIp;
+  localIp = Ipv4Address (server.c_str ());
+
+  std::string macServer ("80:fa:5b:1c:01:49");
+  Mac48AddressValue localMac;
+  localMac = Mac48AddressValue (macServer.c_str ());
+
+
+
+  NS_LOG_INFO ("Create Device");
+  EmuFdNetDeviceHelper emu;
+  emu.SetDeviceName ("eth0");
+  NetDeviceContainer devices = emu.Install (ueNodes.Get(0));
+
+  Ptr<NetDevice> device = devices.Get (0);
+  device->SetAttribute ("Address", localMac);
+  /////////////////////////////////////////////////////////////////////////////////////////////
+
   // Install Mobility Model
   Ptr<ListPositionAllocator> positionAlloc = CreateObject<ListPositionAllocator> ();
   for (uint16_t i = 0; i < numberOfNodes; i++)
@@ -152,34 +178,22 @@ main (int argc, char *argv[])
   //
   //////////////////////////////////////////////////////////////////////////////////////
 
-
-
-//	  int hapticPort = 4444;
-//	  HapticTeleOperatorHelper teleOperator (hapticPort);
-//	  teleOperator.SetAttribute("FileName", StringValue ("src/Kcl-Haptic-Sim/test/force.txt"));
-//	  teleOperator.SetAttribute ("SamplingIntervalSeconds", DoubleValue (0.001));
-//	  //teleOperator.SetAttribute ("ApplyDataReduction", BooleanValue (true));
-//	  ApplicationContainer apps = teleOperator.Install (remoteHost);
-//	  apps.Start (Seconds (0.01));
-//	  apps.Stop (Seconds (30.0));
-//
-//	  HapticOperatorHelper client (remoteHostAddr, hapticPort);
-//	  client.SetAttribute ("PositionFile", StringValue ("src/Kcl-Haptic-Sim/test/position.txt"));
-//	  client.SetAttribute ("VelocityFile", StringValue ("src/Kcl-Haptic-Sim/test/fakeVelocity.txt"));
-//	  client.SetAttribute ("SamplingIntervalSeconds", DoubleValue (0.001));
-//	  //client.SetAttribute ("FileType", StringValue ("POSITION"));
-//	  apps = client.Install (ueNodes.Get(0));
-//	  apps.Start (Seconds (0.02));
-//	  apps.Stop (Seconds (30.0));
+  NS_LOG_INFO ("Create IPv4 Interface");
+  Ptr<Ipv4> ipv4 = ueNodes.Get(0)->GetObject<Ipv4> ();
+  uint32_t interface = ipv4->AddInterface (device);
+  Ipv4InterfaceAddress address = Ipv4InterfaceAddress (localIp, localMask);
+  ipv4->AddAddress (interface, address);
+  ipv4->SetMetric (interface, 1);
+  ipv4->SetUp (interface);
 
 		//
 		// Create a Chai3dServer application on node one.
 		//
 
 		  uint16_t port = 1234;  // well-known echo port number
-		  Chai3dServerHelper server (port,ueIpIface.GetAddress(0),port);
-		  server.SetAttribute ("Chai3dWrapper", StringValue ("/home/matthias/Development/chai3d-3.0.0/bin/04-shapes"));
-		  ApplicationContainer apps = server.Install (remoteHost);
+		  Chai3dServerHelper chai3dServer (port,ueIpIface.GetAddress(0),port);
+		  chai3dServer.SetAttribute ("Chai3dWrapper", StringValue ("/home/matthias/Development/chai3d-3.0.0/bin/04-shapes"));
+		  ApplicationContainer apps = chai3dServer.Install (remoteHost);
 		  apps.Start (Seconds (1.0));
 		  apps.Stop (Seconds (14.0));
 
@@ -197,6 +211,13 @@ main (int argc, char *argv[])
 		  apps = client.Install (ueNodes.Get(0));
 		  apps.Start (Seconds (2.0));
 		  apps.Stop (Seconds (13.0));
+
+//		  PhantomAgentHelper phantomAgent(localIp,1234);
+//		  phantomAgent.SetAttribute("Chai3dWrapperAddress", AddressValue( remoteHostAddr));
+//		  phantomAgent.SetAttribute("Chai3dWrapperPort",UintegerValue( port));
+//		  ApplicationContainer chai3Dapps = phantomAgent.Install(ueNodes.Get(0));
+//		  chai3Dapps.Start(Seconds(1.0));
+//		  chai3Dapps.Stop(Seconds(120));
 
   //lteHelper->EnableTraces ();
 
