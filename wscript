@@ -26,7 +26,7 @@ def build(bld):
        'helper/haptic-tele-operator-helper.cc',
        'helper/position-to-velocity-conversion.cc',
        'helper/chai3d-server-helper.cc',
-       'helper/phantom-agent-helper.cc'
+       'helper/phantom-agent-helper.cc',
        'helper/tcp-haptic-operator-helper.cc',
        'helper/tcp-haptic-tele-operator-helper.cc',
         ]
@@ -72,9 +72,9 @@ def build(bld):
        'helper/haptic-tele-operator-helper.h',
        'helper/position-to-velocity-conversion.h',
        'helper/chai3d-server-helper.h',
-       'helper/phantom-agent-helper.h'
+       'helper/phantom-agent-helper.h',
        'helper/tcp-haptic-operator-helper.h',
-       'helper/tcp-haptic-tele-operator-helper.h',
+       'helper/tcp-haptic-tele-operator-helper.h'
         ]
 
     if bld.env.ENABLE_EXAMPLES:

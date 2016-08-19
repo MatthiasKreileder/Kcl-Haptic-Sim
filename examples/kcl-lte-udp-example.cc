@@ -18,7 +18,10 @@
 #include "ns3/config-store.h"
 #include "ns3/haptic-operator-helper.h"
 #include "ns3/haptic-tele-operator-helper.h"
+#include "ns3/tcp-haptic-operator-helper.h"
+#include "ns3/tcp-haptic-tele-operator-helper.h"
 #include "ns3/flow-monitor-module.h"
+#include <sstream>
 //#include "ns3/gtk-config-store.h"
 
 using namespace ns3;
@@ -39,6 +42,7 @@ main (int argc, char *argv[])
   double simTime = 31.1;
   double distance = 60.0;
   double interPacketInterval = 100;
+  std::string protocol = "UDP";
 
   // Command line arguments
   CommandLine cmd;
@@ -46,11 +50,12 @@ main (int argc, char *argv[])
   cmd.AddValue("simTime", "Total duration of the simulation [s])", simTime);
   cmd.AddValue("distance", "Distance between eNBs [m]", distance);
   cmd.AddValue("interPacketInterval", "Inter packet interval [ms])", interPacketInterval);
+  cmd.AddValue("protocol","The transport layer protocol for the haptic applications: \"UDP\" or \"TCP\" ",protocol);
   cmd.Parse(argc, argv);
 
   // Enable Logging
-  //LogComponentEnable ("KclLteExample", LOG_LEVEL_DEBUG);
-  LogComponentEnable ("HapticOperator", LOG_LEVEL_ALL);
+  LogComponentEnable ("KclLteExample", LOG_LEVEL_DEBUG);
+  //LogComponentEnable ("HapticOperator", LOG_LEVEL_ALL);
   //LogComponentEnable ("LteEnbNetDevice", LOG_LEVEL_ALL);
   //LogComponentEnable ("UdpClient", LOG_LEVEL_ALL);
 
@@ -191,23 +196,62 @@ main (int argc, char *argv[])
   //
   //////////////////////////////////////////////////////////////////////////////////////
 
-  int hapticPort = 4444;
-  HapticTeleOperatorHelper teleOperator (hapticPort);
-  teleOperator.SetAttribute("FileName", StringValue ("src/Kcl-Haptic-Sim/test/force.txt"));
-  teleOperator.SetAttribute ("SamplingIntervalSeconds", DoubleValue (0.001));
-  //teleOperator.SetAttribute ("ApplyDataReduction", BooleanValue (true));
-  ApplicationContainer apps = teleOperator.Install (remoteHost);
-  apps.Start (Seconds (0.01));
-  apps.Stop (Seconds (30.0));
+  std::stringstream ss;
+  ss << "kcl-lte";
+  if (protocol.compare("UDP") == 0){
 
-  HapticOperatorHelper client (remoteHostAddr, hapticPort);
-  client.SetAttribute ("FileName", StringValue ("src/Kcl-Haptic-Sim/test/position.txt"));
-  client.SetAttribute ("SamplingIntervalSeconds", DoubleValue (0.001));
-  client.SetAttribute ("FileType", StringValue ("POSITION"));
-  apps = client.Install (ueNodes.Get(0));
-  apps.Start (Seconds (0.02));
-  apps.Stop (Seconds (30.0));
+	  NS_LOG_DEBUG("Installing Udp Haptic Applications");
+	  ss << "-udp";
 
+	  int hapticPort = 4444;
+	  HapticTeleOperatorHelper teleOperator (hapticPort);
+	  teleOperator.SetAttribute("FileName", StringValue ("src/Kcl-Haptic-Sim/test/force.txt"));
+	  teleOperator.SetAttribute ("SamplingIntervalSeconds", DoubleValue (0.001));
+	  //teleOperator.SetAttribute ("ApplyDataReduction", BooleanValue (true));
+	  ApplicationContainer apps = teleOperator.Install (remoteHost);
+	  apps.Start (Seconds (0.01));
+	  apps.Stop (Seconds (30.0));
+
+	  HapticOperatorHelper client (remoteHostAddr, hapticPort);
+	  client.SetAttribute ("PositionFile", StringValue ("src/Kcl-Haptic-Sim/test/position.txt"));
+	  client.SetAttribute ("VelocityFile", StringValue ("src/Kcl-Haptic-Sim/test/fakeVelocity.txt"));
+	  client.SetAttribute ("SamplingIntervalSeconds", DoubleValue (0.001));
+	  //client.SetAttribute ("FileType", StringValue ("POSITION"));
+	  apps = client.Install (ueNodes.Get(0));
+	  apps.Start (Seconds (0.02));
+	  apps.Stop (Seconds (30.0));
+  }
+  else if (protocol.compare("TCP") == 0){
+	  ss << "-tcp";
+	  NS_LOG_DEBUG("Installing Tcp Haptic Applications");
+
+	  int hapticPort = 4444;
+	  TcpHapticTeleOperatorHelper tcpTeleHelper (hapticPort, ueIpIface.GetAddress (0));
+	  tcpTeleHelper.SetAttribute("FileName",StringValue("src/Kcl-Haptic-Sim/test/force.txt"));
+	  /*
+	   * Un-comment if you want to apply data reduction
+	   */
+	  //tcpTeleHelper.SetAttribute ("ApplyDataReduction", BooleanValue (true));
+	  ApplicationContainer tcpTeleApps = tcpTeleHelper.Install(remoteHost);
+	  tcpTeleApps.Start (Seconds(0));
+	  tcpTeleApps.Stop (Seconds (20.));
+
+	  TcpHapticOperatorHelper tcpHOP (remoteHostAddr,hapticPort);
+	  tcpHOP.SetAttribute ("PositionFile", StringValue ("src/Kcl-Haptic-Sim/test/position.txt"));
+	  tcpHOP.SetAttribute ("VelocityFile", StringValue ("src/Kcl-Haptic-Sim/test/velocity.txt"));
+	  tcpHOP.SetAttribute ("SamplingIntervalSeconds", DoubleValue (0.001));
+	  /*
+	   * Un-comment if you want to apply data reduction
+	   */
+	  //tcpHOP.SetAttribute ("ApplyDataReduction", BooleanValue (true));
+	  ApplicationContainer apps = tcpHOP.Install (ueNodes.Get(0));
+	  apps.Start (Seconds (2.0));
+	  apps.Stop (Seconds (20.0));
+  }
+  else {
+	  ss << "-not-supported";
+	  NS_LOG_DEBUG("Currently only UDP and TCP are supported for Haptic Applications.");
+  }
   //lteHelper->EnableTraces ();
 
 
@@ -230,7 +274,8 @@ main (int argc, char *argv[])
   Simulator::Stop(Seconds(simTime));
   Simulator::Run();
 
-  flowMonitor->SerializeToXmlFile("kcl-lte-udp-example.xml", true, true);
+  ss << "-example.xml";
+  flowMonitor->SerializeToXmlFile(ss.str(), true, true);
 
   /*GtkConfigStore config;
   config.ConfigureAttributes();*/
