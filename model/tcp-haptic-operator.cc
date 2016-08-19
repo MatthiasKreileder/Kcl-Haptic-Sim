@@ -1,14 +1,18 @@
 /*
- * haptic-operator.cc
+ * tcp-haptic-operator.cc
  *
- *  Created on: 13 Jul 2016
+ *  Created on: 17 Aug 2016
  *      Author: matthias
  */
 
-#include "haptic-operator.h"
-#include "sensor-data-sample.h"
+#include "tcp-haptic-operator.h"
 #include "haptic-header.h"
-
+#include <fstream>
+#include "ns3/core-module.h"
+#include "ns3/network-module.h"
+#include "ns3/internet-module.h"
+#include "ns3/point-to-point-module.h"
+#include "ns3/applications-module.h"
 #include "ns3/log.h"
 #include "ns3/ipv4-address.h"
 #include "ns3/nstime.h"
@@ -27,61 +31,46 @@
 #include <cstdio>
 namespace ns3 {
 
-NS_LOG_COMPONENT_DEFINE ("HapticOperator");
+NS_LOG_COMPONENT_DEFINE ("TcpHapticOperator");
 
-NS_OBJECT_ENSURE_REGISTERED (HapticOperator);
-
-HapticOperator::HapticOperator() {
-	  NS_LOG_FUNCTION (this);
-	  m_peerPort = 0;
-	  m_socket = 0;
-	  m_sendEvent = EventId ();
-	  m_hapticFileSensor = 0;
-	  m_packetsSent = 0;
-	  m_reduction = nullptr;
-	  m_deadband = 0.3;
-}
-
-HapticOperator::~HapticOperator() {
-	NS_LOG_FUNCTION(this);
-}
+NS_OBJECT_ENSURE_REGISTERED (TcpHapticOperator);
 
 TypeId
-HapticOperator::GetTypeId (void)
+TcpHapticOperator::GetTypeId (void)
 {
-  static TypeId tid = TypeId ("ns3::HapticOperator")
+  static TypeId tid = TypeId ("ns3::TcpHapticOperator")
     .SetParent<Application> ()
     .SetGroupName("Applications")
-    .AddConstructor<HapticOperator> ()
+    .AddConstructor<TcpHapticOperator> ()
     .AddAttribute ("SamplingIntervalSeconds",
                    "The time in seconds between two data samples.", DoubleValue (0.001),
-                   MakeDoubleAccessor (&HapticOperator::m_interval),
+                   MakeDoubleAccessor (&TcpHapticOperator::m_interval),
                    MakeDoubleChecker<double>())
-    .AddAttribute ("RemoteAddress",
-                   "The destination Address of the outbound packets",
+    .AddAttribute ("TcpTeleOperatorAddress",
+                   "the address of the TcpHapticTeleOperator",
                    AddressValue (),
-                   MakeAddressAccessor (&HapticOperator::m_peerAddress),
+                   MakeAddressAccessor (&TcpHapticOperator::m_tcpHapticTeleOperatorAddress),
                    MakeAddressChecker ())
-    .AddAttribute ("RemotePort", "The destination port of the outbound packets",
+    .AddAttribute ("TcpTeleOperatorPort", "the port of the TcpHapticTeleOperator",
                    UintegerValue (100),
-                   MakeUintegerAccessor (&HapticOperator::m_peerPort),
+                   MakeUintegerAccessor (&TcpHapticOperator::m_tcpHapticTeleOperatorPort),
                    MakeUintegerChecker<uint16_t> ())
 	.AddAttribute ("PositionFile",
 				   "The file that contains the position samples.",
 				   StringValue ("src/Kcl-Haptic-Sim/test/position.txt"),
-				   MakeStringAccessor (&HapticOperator::m_positionFile),
+				   MakeStringAccessor (&TcpHapticOperator::m_positionFile),
 				   MakeStringChecker()
 				   )
 	.AddAttribute ("VelocityFile",
 				   "The file that contains the velocity samples.",
 				   StringValue ("src/Kcl-Haptic-Sim/test/faleVosition.txt"),
-                   MakeStringAccessor (&HapticOperator::m_velocityFile),
+                   MakeStringAccessor (&TcpHapticOperator::m_velocityFile),
                    MakeStringChecker()
 				   )
 	.AddAttribute  ("ApplyDataReduction",
 				   "Set to true if data reduction should be applied.",
 				   BooleanValue (false),
-				   MakeBooleanAccessor(&HapticOperator::m_useDataReductionAlgorithm),
+				   MakeBooleanAccessor(&TcpHapticOperator::m_useDataReductionAlgorithm),
 				   MakeBooleanChecker()
 				   )
 
@@ -89,39 +78,31 @@ HapticOperator::GetTypeId (void)
   return tid;
 }
 
+TcpHapticOperator::TcpHapticOperator() {
+	// TODO Auto-generated constructor stub
+
+}
+
+TcpHapticOperator::~TcpHapticOperator() {
+	// TODO Auto-generated destructor stub
+}
 void
-HapticOperator::SetRemote (Ipv4Address ip, uint16_t port)
+TcpHapticOperator::SetRemote (Address ip, uint16_t port)
 {
   NS_LOG_FUNCTION (this << ip << port);
-  m_peerAddress = Address(ip);
-  m_peerPort = port;
+  m_tcpHapticTeleOperatorAddress = ip;
+  m_tcpHapticTeleOperatorPort = port;
 }
 
 void
-HapticOperator::SetRemote (Ipv6Address ip, uint16_t port)
-{
-  NS_LOG_FUNCTION (this << ip << port);
-  m_peerAddress = Address(ip);
-  m_peerPort = port;
-}
-
-void
-HapticOperator::SetRemote (Address ip, uint16_t port)
-{
-  NS_LOG_FUNCTION (this << ip << port);
-  m_peerAddress = ip;
-  m_peerPort = port;
-}
-
-void
-HapticOperator::DoDispose (void)
+TcpHapticOperator::DoDispose (void)
 {
   NS_LOG_FUNCTION (this);
   Application::DoDispose ();
 }
 
 void
-HapticOperator::StartApplication (void)
+TcpHapticOperator::StartApplication (void)
 {
   NS_LOG_FUNCTION (this);
 
@@ -131,38 +112,23 @@ HapticOperator::StartApplication (void)
 
   if (m_socket == 0)
     {
-      TypeId tid = TypeId::LookupByName ("ns3::UdpSocketFactory");
-      m_socket = Socket::CreateSocket (GetNode (), tid);
-      if (Ipv4Address::IsMatchingType(m_peerAddress) == true)
-        {
-          m_socket->Bind ();
-          m_socket->Connect (InetSocketAddress (Ipv4Address::ConvertFrom(m_peerAddress), m_peerPort));
-        }
-      else if (Ipv6Address::IsMatchingType(m_peerAddress) == true)
-        {
-          m_socket->Bind6 ();
-          m_socket->Connect (Inet6SocketAddress (Ipv6Address::ConvertFrom(m_peerAddress), m_peerPort));
-        }
+
+	  m_socket = Socket::CreateSocket (GetNode(), TcpSocketFactory::GetTypeId ());
+	  m_socket->Bind();
+	  m_socket->Connect(InetSocketAddress (Ipv4Address::ConvertFrom(m_tcpHapticTeleOperatorAddress), m_tcpHapticTeleOperatorPort));
     }
 
-  m_socket->SetRecvCallback (MakeCallback (&HapticOperator::HandleRead, this));
-  m_socket->SetAllowBroadcast (true);
+  m_socket->SetRecvCallback (MakeCallback (&TcpHapticOperator::HandleRead, this));
+
 
   m_hapticFileSensor = new HapticFileSensor(m_positionFile,m_velocityFile);
 
-  m_sendEvent = Simulator::Schedule (Seconds (0.0), &HapticOperator::Send, this);
+
+
+  m_sendEvent = Simulator::Schedule (Seconds (0.0), &TcpHapticOperator::Send, this);
 }
 
-void
-HapticOperator::StopApplication (void)
-{
-  NS_LOG_FUNCTION (this);
-  delete m_hapticFileSensor;
-  NS_LOG_DEBUG("Number of packets sent:" << m_packetsSent);
-  Simulator::Cancel (m_sendEvent);
-}
-
-void HapticOperator::HandleRead(Ptr<Socket> socket){
+void TcpHapticOperator::HandleRead(Ptr<Socket> socket){
 	  NS_LOG_FUNCTION (this << socket);
 
 	  Ptr<Packet> packet;
@@ -171,13 +137,13 @@ void HapticOperator::HandleRead(Ptr<Socket> socket){
 	    {
 	      if (InetSocketAddress::IsMatchingType (from))
 	        {
-	          NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s HapticOperator received " << packet->GetSize () << " bytes from " <<
+	          NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s TcpHapticOperator received " << packet->GetSize () << " bytes from " <<
 	                       InetSocketAddress::ConvertFrom (from).GetIpv4 () << " port " <<
 	                       InetSocketAddress::ConvertFrom (from).GetPort ());
 	        }
 	      else if (Inet6SocketAddress::IsMatchingType (from))
 	        {
-	          NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s HapticOperator received " << packet->GetSize () << " bytes from " <<
+	          NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s TcpHapticOperator received " << packet->GetSize () << " bytes from " <<
 	                       Inet6SocketAddress::ConvertFrom (from).GetIpv6 () << " port " <<
 	                       Inet6SocketAddress::ConvertFrom (from).GetPort ());
 	        }
@@ -185,7 +151,7 @@ void HapticOperator::HandleRead(Ptr<Socket> socket){
 }
 
 void
-HapticOperator::Send (void)
+TcpHapticOperator::Send (void)
 {
   NS_LOG_FUNCTION (this);
   NS_ASSERT (m_sendEvent.IsExpired ());
@@ -205,11 +171,9 @@ HapticOperator::Send (void)
 		  SensorDataSample velocity;
 		  m_hapticFileSensor->GetNextSensorDataSample(velocity,HapticFileSensor::VELOCITY);
 		  if (!m_reduction->needsToBeTransmitted(velocity.getSensorDataVector())){
-			  m_sendEvent = Simulator::Schedule (Seconds( m_interval), &HapticOperator::Send, this);
+			  m_sendEvent = Simulator::Schedule (Seconds( m_interval), &TcpHapticOperator::Send, this);
 			  return;
 		  }
-
-
 	  }
 	  //
 	  //	Wrap it in a HapticHeader to prepare data to be
@@ -224,14 +188,7 @@ HapticOperator::Send (void)
 	  p->AddHeader(hapticHeader);
 
 	  std::stringstream peerAddressStringStream;
-	  if (Ipv4Address::IsMatchingType (m_peerAddress))
-	    {
-	      peerAddressStringStream << Ipv4Address::ConvertFrom (m_peerAddress);
-	    }
-	  else if (Ipv6Address::IsMatchingType (m_peerAddress))
-	    {
-	      peerAddressStringStream << Ipv6Address::ConvertFrom (m_peerAddress);
-	    }
+	  peerAddressStringStream << Ipv4Address::ConvertFrom (m_tcpHapticTeleOperatorAddress);
 
 	  if ((m_socket->Send (p)) >= 0)
 	    {
@@ -246,7 +203,7 @@ HapticOperator::Send (void)
 	      NS_LOG_INFO ("Error while sending to" << peerAddressStringStream.str ());
 	    }
 
-	      m_sendEvent = Simulator::Schedule (Seconds( m_interval), &HapticOperator::Send, this);
+	      m_sendEvent = Simulator::Schedule (Seconds( m_interval), &TcpHapticOperator::Send, this);
 	      m_packetsSent++;
 	      NS_LOG_DEBUG("Packets sent: " << m_packetsSent);
 
