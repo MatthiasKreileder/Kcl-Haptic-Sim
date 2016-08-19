@@ -16,6 +16,10 @@
 
 namespace ns3 {
 
+/**
+ * \brief A TcpHapticTeleOperatorHelper object simplifies the process of creating and
+ * installing a TcpHapticTeleOperator application on a node.
+ */
 class TcpHapticTeleOperatorHelper {
 public:
 	TcpHapticTeleOperatorHelper(uint16_t port, Ipv4Address tcpHapticOperatorAddress);

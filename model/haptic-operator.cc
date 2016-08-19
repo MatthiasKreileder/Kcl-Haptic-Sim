@@ -148,21 +148,7 @@ HapticOperator::StartApplication (void)
   m_socket->SetRecvCallback (MakeCallback (&HapticOperator::HandleRead, this));
   m_socket->SetAllowBroadcast (true);
 
-
-//  if(m_fileType.compare("POSITION") == 0){
-//	  m_hapticSensorFileType = HapticFileSensor::POSITION;
-//  }
-//  else if (m_fileType.compare("VELOCITY") == 0){
-//	  m_hapticSensorFileType = HapticFileSensor::VELOCITY;
-//  }
-//  else{
-//	  NS_ASSERT_MSG(m_fileType.compare("FORCEFEEDBACK") == 0,"Un-known file type, options are: POSITION, VELOCITY or FORCEFEEDBACK");
-//	  m_hapticSensorFileType = HapticFileSensor::FORCEFEEDBACK;
-//  }
-
   m_hapticFileSensor = new HapticFileSensor(m_positionFile,m_velocityFile);
-
-
 
   m_sendEvent = Simulator::Schedule (Seconds (0.0), &HapticOperator::Send, this);
 }

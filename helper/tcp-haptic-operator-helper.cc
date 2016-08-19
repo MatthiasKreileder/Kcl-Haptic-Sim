@@ -9,11 +9,6 @@
 #include "../model/tcp-haptic-operator.h"
 namespace ns3 {
 
-TcpHapticOperatorHelper::TcpHapticOperatorHelper() {
-	// TODO Auto-generated constructor stub
-
-}
-
 TcpHapticOperatorHelper::~TcpHapticOperatorHelper() {
 	// TODO Auto-generated destructor stub
 }

@@ -46,11 +46,6 @@ TcpHapticTeleOperator::GetTypeId (void)
                    MakeStringAccessor (&TcpHapticTeleOperator::m_fileName),
                    MakeStringChecker()
  			   	  )
-//	.AddAttribute ("TcpOperatorAddress",
-//	               "the address of the TcpHapticOperator",
-//	               Ipv4AddressValue (),
-//	               MakeIpv4AddressAccessor (&TcpHapticTeleOperator::m_tcpHapticOperatorAddress),
-//	               MakeAddressChecker ())
 	.AddAttribute ("ApplyDataReduction",
 				   "Set to true if data reduction should be applied.",
 				   BooleanValue (false),
@@ -91,23 +86,10 @@ TcpHapticTeleOperator::HandleRead (Ptr<Socket> socket)
   Address from;
   while ((packet = socket->RecvFrom (from)))
     {
-
-//	  if(InetSocketAddress::ConvertFrom (from).GetIpv4 ()
-//			  !=
-//		 InetSocketAddress::ConvertFrom (m_tcpHapticOperatorAddress).GetIpv4 ())
-//	  {
-//		  NS_LOG_DEBUG(this << "TcpHapticTeleOperator received address from un-known source: " << InetSocketAddress::ConvertFrom (from).GetIpv4 ());
-//		  return;
-//	  }
-
 	  if (!m_receivedFirstPacketFromTcpHapticOperator){
 		  m_receivedFirstPacketFromTcpHapticOperator = true;
 		  ReadSensorData();
 	  }
-
-//      NS_LOG_INFO ("At time " << Simulator::Now ().GetSeconds () << "s server received " << packet->GetSize () << " bytes from " <<
-//                   InetSocketAddress::ConvertFrom (from).GetIpv4 () << " port " <<
-//                   InetSocketAddress::ConvertFrom (from).GetPort ());
     }
 }
 
@@ -184,14 +166,11 @@ TcpHapticTeleOperator::ReadSensorData ()
 		  Ptr<Packet> p = Create<Packet> (hapticHeader.GetSerializedSize());
 		  p->AddHeader(hapticHeader);
 
-		  //std::stringstream peerAddressStringStream;
-		  //peerAddressStringStream << " " << InetSocketAddress::ConvertFrom ( m_tcpHapticOperatorAddress).GetIpv4 ();
-		  //SendPriv(m_socket,p,peerAddressStringStream.str());
-		  SendPriv(m_tcpHapticOperatorSocket,p,"test");
+		  SendPriv(m_tcpHapticOperatorSocket,p,"TcpHapticOperator");
 
 		  m_packetsSent++;
-		  //NS_LOG_DEBUG("Packet sent: " << m_packetsSent);
-		      m_readSensorDataEvent = Simulator::Schedule (Seconds(m_interval), &TcpHapticTeleOperator::ReadSensorData, this);
+
+		  m_readSensorDataEvent = Simulator::Schedule (Seconds(m_interval), &TcpHapticTeleOperator::ReadSensorData, this);
 
 	  }
 	  else

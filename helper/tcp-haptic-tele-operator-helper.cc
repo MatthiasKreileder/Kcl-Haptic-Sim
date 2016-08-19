@@ -10,7 +10,7 @@
 namespace ns3 {
 
 TcpHapticTeleOperatorHelper::TcpHapticTeleOperatorHelper(uint16_t port, Ipv4Address tcpHapticOperatorAddress) {
-	// TODO Auto-generated constructor stub
+
 	m_factory.SetTypeId (TcpHapticTeleOperator::GetTypeId ());
 	m_factory.Set ("Port", UintegerValue (port));
 	//m_factory.Set ("TcpOperatorAddress", tcpHapticOperatorAddress);
