@@ -110,7 +110,7 @@ Chai3dServerBaseTestCase::DoRun()
 	  server.SetAttribute ("Chai3dWrapper", StringValue ("/home/matthias/Development/chai3d-3.0.0/bin/04-shapes"));
 	  ApplicationContainer apps = server.Install (n.Get (1));
 	  apps.Start (Seconds (1.0));
-	  apps.Stop (Seconds (30.0));
+	  apps.Stop (Seconds (14.0));
 
 
 	//
@@ -120,12 +120,12 @@ Chai3dServerBaseTestCase::DoRun()
 	  HapticOperatorHelper client (serverAddress, port);
 	  //client.SetAttribute ("FileName", StringValue ("src/Kcl-Haptic-Sim/test/position.txt"));
 	  client.SetAttribute ("SamplingIntervalSeconds", DoubleValue( interPacketInterval));
-	  client.SetAttribute ("PositionFile", StringValue ("src/Kcl-Haptic-Sim/test/position.txt"));
-	  client.SetAttribute ("VelocityFile", StringValue ("src/Kcl-Haptic-Sim/test/fakeVelocity.txt"));
-	  //client.SetAttribute ("ApplyDataReduction", BooleanValue (true));
+	  client.SetAttribute ("PositionFile", StringValue ("src/Kcl-Haptic-Sim/test-data/position.txt"));
+	  client.SetAttribute ("VelocityFile", StringValue ("src/Kcl-Haptic-Sim/test-data/velocity.txt"));
+	  client.SetAttribute ("ApplyDataReduction", BooleanValue (true));
 	  apps = client.Install (n.Get (0));
 	  apps.Start (Seconds (2.0));
-	  apps.Stop (Seconds (20.0));
+	  apps.Stop (Seconds (13.0));
 
 
 
@@ -133,7 +133,7 @@ Chai3dServerBaseTestCase::DoRun()
 	// Now, do the actual simulation.
 	//
 
-	  Simulator::Stop(Seconds(30));
+	  Simulator::Stop(Seconds(15));
 	  Simulator::Run ();
 
 	  Simulator::Destroy ();
