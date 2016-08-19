@@ -6,4 +6,6 @@ def build(bld):
     
     obj = bld.create_ns3_program('kcl-ethernet-udp-example', ['Kcl-Haptic-Sim','internet','network','applications','csma','point-to-point','flow-monitor'])
     obj.source = 'kcl-ethernet-udp-example.cc'
-
+	
+    obj = bld.create_ns3_program('kcl-lte-udp-example', ['Kcl-Haptic-Sim','lte','flow-monitor'])
+    obj.source = 'kcl-lte-udp-example.cc'
