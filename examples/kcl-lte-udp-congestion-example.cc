@@ -61,16 +61,21 @@ NS_LOG_COMPONENT_DEFINE ("KclLteCongestionExample");
 int
 main (int argc, char *argv[])
 {
+  uint16_t numberOfUeTrafficGeneratorNodes = 20;
   double simTime = 30.0;
   double appStartTime = 2.0;
-  double distance = 60.0;
+  double distance = 0.50;
   std::string protocol = "UDP";
+  double interPacketInterval = 10;
+  int maxPackets = 10000;
 
   // Command line arguments
   CommandLine cmd;
   cmd.AddValue("simTime", "Total duration of the simulation [s])", simTime);
   cmd.AddValue("distance", "Distance between eNBs [m]", distance);
   cmd.AddValue("protocol","The transport layer protocol for the haptic applications: \"UDP\" or \"TCP\" ",protocol);
+  cmd.AddValue("InterPacket","Inter packet interval",interPacketInterval);
+  cmd.AddValue("Nodes","b",numberOfUeTrafficGeneratorNodes);
   cmd.Parse(argc, argv);
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -141,10 +146,10 @@ main (int argc, char *argv[])
   NodeContainer ueNodes;
   NodeContainer enbNode;
   enbNode.Create(1);
-  ueNodes.Create(2);
+  ueNodes.Create(1 + numberOfUeTrafficGeneratorNodes);
 
   Ptr<Node> hapticOperatorNode = ueNodes.Get(0);
-  Ptr<Node> udpEchoClientNode = ueNodes.Get(1);
+  //Ptr<Node> udpEchoClientNode = ueNodes.Get(1);
 
   InstallMobilityModel(ueNodes,enbNode, distance);
 
@@ -166,15 +171,18 @@ main (int argc, char *argv[])
       ueStaticRouting->SetDefaultRoute (epcHelper->GetUeDefaultGatewayAddress (), 1);
     }
 
-  // Attach both UEs to the eNodeB
-  lteHelper->Attach (ueLteDevs.Get(0), enbLteDevs.Get(0));
-  lteHelper->Attach (ueLteDevs.Get(1), enbLteDevs.Get(0));
+  // Attach UEs to the eNodeB
+  for(size_t i = 0; i < ueNodes.GetN();i++){
+	  lteHelper->Attach (ueLteDevs.Get(i), enbLteDevs.Get(0));
+	  assignBearer(ueLteDevs.Get(i), lteHelper);
+  }
+  //lteHelper->Attach (ueLteDevs.Get(1), enbLteDevs.Get(0));
   // side effect: the default EPS bearer will be activated
-
-  // Bearer for the HapticOperator
-  assignBearer(ueLteDevs.Get(0), lteHelper);
-  // Bearer for the UdpEchoClient
-  assignBearer(ueLteDevs.Get(1), lteHelper);
+//
+//  // Bearer for the HapticOperator
+//  assignBearer(ueLteDevs.Get(0), lteHelper);
+//  // Bearer for the UdpEchoClient
+//  assignBearer(ueLteDevs.Get(1), lteHelper);
 
   //////////////////////////////////////////////////////////////////////////////////////
   //
@@ -258,29 +266,74 @@ main (int argc, char *argv[])
   //
   ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-  //
-  // Create a UdpEchoServer application on node one.
-  //
-    uint16_t udpEchport = 9;  // well-known echo port number
-    UdpEchoServerHelper server (udpEchport);
-    ApplicationContainer apps = server.Install (udpEchoRemoteHost);
-    apps.Start (Seconds (appStartTime - 0.5));
-    apps.Stop (Seconds (simTime));
+  // Install and start applications on UEs and remote host
+  uint16_t dlPort = 1234;
+  uint16_t ulPort = 2000;
+  uint16_t otherPort = 3000;
+  ApplicationContainer clientApps;
+  ApplicationContainer serverApps;
+  // It's important to skip the first node here!
+  for (uint32_t u = 1; u < ueNodes.GetN (); ++u)
+    {
+      ++ulPort;
+      ++otherPort;
+      PacketSinkHelper dlPacketSinkHelper ("ns3::UdpSocketFactory", InetSocketAddress (Ipv4Address::GetAny (), dlPort));
+      PacketSinkHelper ulPacketSinkHelper ("ns3::UdpSocketFactory", InetSocketAddress (Ipv4Address::GetAny (), ulPort));
+      PacketSinkHelper packetSinkHelper ("ns3::UdpSocketFactory", InetSocketAddress (Ipv4Address::GetAny (), otherPort));
+      serverApps.Add (dlPacketSinkHelper.Install (ueNodes.Get(u)));
+      serverApps.Add (ulPacketSinkHelper.Install (udpEchoRemoteHost));
+      serverApps.Add (packetSinkHelper.Install (ueNodes.Get(u)));
 
-  //
-  // Create a UdpEchoClient application to send UDP datagrams from node zero to
-  // node one.
-  //
-    uint32_t packetSize = 1024;
-    uint32_t maxPacketCount = 100000;
-    Time interPacketIntervalUdpEcho = Seconds (0.0001);
-    UdpEchoClientHelper client (udpEchoRemoteHostAddr, udpEchport);
-    client.SetAttribute ("MaxPackets", UintegerValue (maxPacketCount));
-    client.SetAttribute ("Interval", TimeValue (interPacketIntervalUdpEcho));
-    client.SetAttribute ("PacketSize", UintegerValue (packetSize));
-    apps = client.Install (udpEchoClientNode);
-    apps.Start (Seconds (appStartTime));
-    apps.Stop (Seconds (simTime));
+      UdpClientHelper dlClient (ueIpIface.GetAddress (u), dlPort);
+      dlClient.SetAttribute ("Interval", TimeValue (MilliSeconds(interPacketInterval)));
+      dlClient.SetAttribute ("MaxPackets", UintegerValue(maxPackets));
+
+      UdpClientHelper ulClient (udpEchoRemoteHostAddr, ulPort);
+      ulClient.SetAttribute ("Interval", TimeValue (MilliSeconds(interPacketInterval)));
+      ulClient.SetAttribute ("MaxPackets", UintegerValue(maxPackets));
+
+      UdpClientHelper client (ueIpIface.GetAddress (u), otherPort);
+      client.SetAttribute ("Interval", TimeValue (MilliSeconds(interPacketInterval)));
+      client.SetAttribute ("MaxPackets", UintegerValue(maxPackets));
+
+      clientApps.Add (dlClient.Install (udpEchoRemoteHost));
+      clientApps.Add (ulClient.Install (ueNodes.Get(u)));
+      if (u+1 < ueNodes.GetN ())
+        {
+          clientApps.Add (client.Install (ueNodes.Get(u+1)));
+        }
+      else
+        {
+          //clientApps.Add (client.Install (ueNodes.Get(0)));
+        }
+    }
+  serverApps.Start (Seconds (appStartTime));
+  clientApps.Start (Seconds (appStartTime));
+  clientApps.Stop (Seconds (simTime));
+  serverApps.Stop (Seconds (simTime));
+//  //
+//  // Create a UdpEchoServer application on node one.
+//  //
+//    uint16_t udpEchport = 9;  // well-known echo port number
+//    UdpEchoServerHelper server (udpEchport);
+//    ApplicationContainer apps = server.Install (udpEchoRemoteHost);
+//    apps.Start (Seconds (appStartTime - 0.5));
+//    apps.Stop (Seconds (simTime));
+//
+//  //
+//  // Create a UdpEchoClient application to send UDP datagrams from node zero to
+//  // node one.
+//  //
+//    uint32_t packetSize = 1024;
+//    uint32_t maxPacketCount = 100000;
+//    Time interPacketIntervalUdpEcho = Seconds (0.0001);
+//    UdpEchoClientHelper client (udpEchoRemoteHostAddr, udpEchport);
+//    client.SetAttribute ("MaxPackets", UintegerValue (maxPacketCount));
+//    client.SetAttribute ("Interval", TimeValue (interPacketIntervalUdpEcho));
+//    client.SetAttribute ("PacketSize", UintegerValue (packetSize));
+//    apps = client.Install (udpEchoClientNode);
+//    apps.Start (Seconds (appStartTime));
+//    apps.Stop (Seconds (simTime));
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////
   //
@@ -299,6 +352,8 @@ main (int argc, char *argv[])
   Simulator::Stop(Seconds(simTime));
   Simulator::Run();
 
+  ss << "InterPacketMilliseconds=" << interPacketInterval;
+  ss << "-Nodes=" << numberOfUeTrafficGeneratorNodes;
   ss << "-example.xml";
   flowMonitor->SerializeToXmlFile(ss.str(), true, true);
 
