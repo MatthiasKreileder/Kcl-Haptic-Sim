@@ -42,6 +42,12 @@
 //                                   ================
 //                                     LAN 10.1.2.0
 
+// Idea and code for setting up the FdNetDevice which is used by the PhantomAgent 
+// is based on: https://www2.nsnam.org/doxygen/fd-emu-onoff_8cc_source.html
+
+// Idea and code for setting up the network topology is based on: 
+// https://www.nsnam.org/doxygen/third_8cc_source.html
+
 using namespace ns3;
 
 NS_LOG_COMPONENT_DEFINE ("KclWifiExample");
