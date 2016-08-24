@@ -5,6 +5,7 @@
 #include "ns3/internet-module.h"
 #include "phantom-agent.h"
 #include "haptic-header.h"
+#include <sstream>
 
 namespace ns3{
 
@@ -112,10 +113,30 @@ void PhantomAgent::ReadPacketFromChai3D (Ptr<Socket> socket){
 //			NS_LOG_DEBUG("Received packet from un-known source: " << from);
 //			return;
 //		}
+//
+//		NS_LOG_DEBUG ("At time " << Simulator::Now ().GetSeconds () << "s PhantomAgent is about to send " << packet->GetSize () << " bytes to " <<
+//	                  InetSocketAddress::ConvertFrom (m_phantomAddress).GetIpv4 () << " port " <<
+//	                  InetSocketAddress::ConvertFrom (m_phantomAddress).GetPort ());
+
+        uint8_t buf[packet->GetSize () + 1];
+        buf[packet->GetSize ()] = '\0';
+        uint32_t size = packet->GetSize();
+
+        packet->CopyData(buf,size);
+
+
+        std::ostringstream oss;
+        for(uint32_t i = 0; i < size; i++){
+      	  oss << buf[i];
+        }
+        NS_LOG_DEBUG("Payload for Windows" << oss.str());
 
 		int returnVal = m_socketForCommunicationWithPhantomOmni->SendTo(packet,0,m_phantomAddress);
 		if(returnVal == -1){
 			NS_LOG_DEBUG("Error while sending");
+		}
+		else if(returnVal == 0){
+			NS_LOG_DEBUG("No data to send");
 		}
 		else
 		{

@@ -66,8 +66,9 @@ main (int argc, char *argv[])
   double appStartTime = 2.0;
   double distance = 0.50;
   std::string protocol = "UDP";
-  double interPacketInterval = 10;
+  double interPacketInterval = 1;
   int maxPackets = 10000;
+  uint32_t packetSize = 40;
 
   // Command line arguments
   CommandLine cmd;
@@ -113,7 +114,7 @@ main (int argc, char *argv[])
 
   // Create the connection to the network where the HapticTeleOperator lives
   PointToPointHelper p2ph;
-  p2ph.SetDeviceAttribute ("DataRate", DataRateValue (DataRate ("100Gb/s")));
+  p2ph.SetDeviceAttribute ("DataRate", DataRateValue (DataRate ("1000Gb/s")));
   p2ph.SetDeviceAttribute ("Mtu", UintegerValue (1500));
   p2ph.SetChannelAttribute ("Delay", TimeValue (Seconds (0.010)));
   NetDeviceContainer internetDevices = p2ph.Install (pgw, remoteHost);
@@ -287,14 +288,17 @@ main (int argc, char *argv[])
       UdpClientHelper dlClient (ueIpIface.GetAddress (u), dlPort);
       dlClient.SetAttribute ("Interval", TimeValue (MilliSeconds(interPacketInterval)));
       dlClient.SetAttribute ("MaxPackets", UintegerValue(maxPackets));
+      dlClient.SetAttribute ("PacketSize", UintegerValue(packetSize));
 
       UdpClientHelper ulClient (udpEchoRemoteHostAddr, ulPort);
       ulClient.SetAttribute ("Interval", TimeValue (MilliSeconds(interPacketInterval)));
       ulClient.SetAttribute ("MaxPackets", UintegerValue(maxPackets));
+      ulClient.SetAttribute ("PacketSize", UintegerValue(packetSize));
 
       UdpClientHelper client (ueIpIface.GetAddress (u), otherPort);
       client.SetAttribute ("Interval", TimeValue (MilliSeconds(interPacketInterval)));
       client.SetAttribute ("MaxPackets", UintegerValue(maxPackets));
+      client.SetAttribute ("PacketSize", UintegerValue(packetSize));
 
       clientApps.Add (dlClient.Install (udpEchoRemoteHost));
       clientApps.Add (ulClient.Install (ueNodes.Get(u)));

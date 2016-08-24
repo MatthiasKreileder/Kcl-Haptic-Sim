@@ -195,29 +195,29 @@ main (int argc, char *argv[])
 		  chai3dServer.SetAttribute ("Chai3dWrapper", StringValue ("/home/matthias/Development/chai3d-3.0.0/bin/04-shapes"));
 		  ApplicationContainer apps = chai3dServer.Install (remoteHost);
 		  apps.Start (Seconds (1.0));
-		  apps.Stop (Seconds (14.0));
+		  apps.Stop (Seconds (140.0));
 
 
-		//
-		// Create a HapticOperator application to send UDP datagrams from node zero to
-		// node one.
-		//
-		  HapticOperatorHelper client (remoteHostAddr, port);
-		  //client.SetAttribute ("FileName", StringValue ("src/Kcl-Haptic-Sim/test/position.txt"));
-		  client.SetAttribute ("SamplingIntervalSeconds", DoubleValue( 0.001));
-		  client.SetAttribute ("PositionFile", StringValue ("src/Kcl-Haptic-Sim/test-data/position.txt"));
-		  client.SetAttribute ("VelocityFile", StringValue ("src/Kcl-Haptic-Sim/test-data/velocity.txt"));
-		  client.SetAttribute ("ApplyDataReduction", BooleanValue (true));
-		  apps = client.Install (ueNodes.Get(0));
-		  apps.Start (Seconds (2.0));
-		  apps.Stop (Seconds (13.0));
+//		//
+//		// Create a HapticOperator application to send UDP datagrams from node zero to
+//		// node one.
+//		//
+//		  HapticOperatorHelper client (remoteHostAddr, port);
+//		  //client.SetAttribute ("FileName", StringValue ("src/Kcl-Haptic-Sim/test/position.txt"));
+//		  client.SetAttribute ("SamplingIntervalSeconds", DoubleValue( 0.001));
+//		  client.SetAttribute ("PositionFile", StringValue ("src/Kcl-Haptic-Sim/test-data/position.txt"));
+//		  client.SetAttribute ("VelocityFile", StringValue ("src/Kcl-Haptic-Sim/test-data/velocity.txt"));
+//		  client.SetAttribute ("ApplyDataReduction", BooleanValue (true));
+//		  apps = client.Install (ueNodes.Get(0));
+//		  apps.Start (Seconds (2.0));
+//		  apps.Stop (Seconds (130.0));
 
-//		  PhantomAgentHelper phantomAgent(localIp,1234);
-//		  phantomAgent.SetAttribute("Chai3dWrapperAddress", AddressValue( remoteHostAddr));
-//		  phantomAgent.SetAttribute("Chai3dWrapperPort",UintegerValue( port));
-//		  ApplicationContainer chai3Dapps = phantomAgent.Install(ueNodes.Get(0));
-//		  chai3Dapps.Start(Seconds(1.0));
-//		  chai3Dapps.Stop(Seconds(120));
+		  PhantomAgentHelper phantomAgent(localIp,1234);
+		  phantomAgent.SetAttribute("Chai3dWrapperAddress", AddressValue( remoteHostAddr));
+		  phantomAgent.SetAttribute("Chai3dWrapperPort",UintegerValue( port));
+		  ApplicationContainer chai3Dapps = phantomAgent.Install(ueNodes.Get(0));
+		  chai3Dapps.Start(Seconds(1.0));
+		  chai3Dapps.Stop(Seconds(120));
 
   //lteHelper->EnableTraces ();
 

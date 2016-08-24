@@ -49,7 +49,7 @@ NS_LOG_COMPONENT_DEFINE ("KclWifiExample");
 int 
 main (int argc, char *argv[])
 {
-  bool verbose = true;
+  bool verbose = false;
   uint32_t nCsma = 3;
   uint32_t nWifi = 3;
   bool tracing = false;
@@ -84,8 +84,8 @@ main (int argc, char *argv[])
   p2pNodes.Create (2);
 
   PointToPointHelper pointToPoint;
-  pointToPoint.SetDeviceAttribute ("DataRate", StringValue ("5Mbps"));
-  pointToPoint.SetChannelAttribute ("Delay", StringValue ("2ms"));
+  pointToPoint.SetDeviceAttribute ("DataRate", StringValue ("500Mbps"));
+  pointToPoint.SetChannelAttribute ("Delay", StringValue ("1ms"));
 
   NetDeviceContainer p2pDevices;
   p2pDevices = pointToPoint.Install (p2pNodes);
@@ -100,6 +100,42 @@ main (int argc, char *argv[])
 
   NetDeviceContainer csmaDevices;
   csmaDevices = csma.Install (csmaNodes);
+
+  /////////////////////////////////////////////////////////////////////
+  std::string netmask ("255.255.255.0");
+  Ipv4Mask localMask (netmask.c_str ());
+
+  std::string server ("172.16.25.125");
+  Ipv4Address localIp;
+  localIp = Ipv4Address (server.c_str ());
+
+  std::string macServer ("80:fa:5b:1c:01:49");
+  Mac48AddressValue localMac;
+  localMac = Mac48AddressValue (macServer.c_str ());
+
+
+
+  NS_LOG_INFO ("Create Device");
+  EmuFdNetDeviceHelper emu;
+  emu.SetDeviceName ("eth0");
+  NetDeviceContainer devices = emu.Install (csmaNodes.Get(0));
+
+  Ptr<NetDevice> device = devices.Get (0);
+  device->SetAttribute ("Address", localMac);
+
+  NS_LOG_INFO ("Add Internet Stack");
+  InternetStackHelper internetStackHelper;
+  internetStackHelper.SetIpv4StackInstall(true);
+  internetStackHelper.Install (csmaNodes.Get(0));
+
+  NS_LOG_INFO ("Create IPv4 Interface");
+  Ptr<Ipv4> ipv4 = csmaNodes.Get(0)->GetObject<Ipv4> ();
+  uint32_t interface = ipv4->AddInterface (device);
+  Ipv4InterfaceAddress phantomAddress = Ipv4InterfaceAddress (localIp, localMask);
+  ipv4->AddAddress (interface, phantomAddress);
+  ipv4->SetMetric (interface, 1);
+  ipv4->SetUp (interface);
+  /////////////////////////////////////////////////////////////////////
 
   NodeContainer wifiStaNodes;
   wifiStaNodes.Create (nWifi);
@@ -146,7 +182,10 @@ main (int argc, char *argv[])
   mobility.Install (wifiApNode);
 
   InternetStackHelper stack;
-  stack.Install (csmaNodes);
+  stack.Install (csmaNodes.Get(1));
+  stack.Install (csmaNodes.Get(2));
+  stack.Install (csmaNodes.Get(3));
+
   stack.Install (wifiApNode);
   stack.Install (wifiStaNodes);
 
@@ -164,36 +203,13 @@ main (int argc, char *argv[])
   Ipv4InterfaceContainer staInterfaces = address.Assign (staDevices);
   address.Assign (apDevices);
 
+  Ipv4GlobalRoutingHelper::PopulateRoutingTables ();
+
   ////////////////////////////////////////////////////////
-  std::string netmask ("255.255.0.0");
-  Ipv4Mask localMask (netmask.c_str ());
 
-  std::string server ("172.16.25.125");
-  Ipv4Address localIp;
-  localIp = Ipv4Address (server.c_str ());
-
-  std::string macServer ("80:fa:5b:1c:01:49");
-  Mac48AddressValue localMac;
-  localMac = Mac48AddressValue (macServer.c_str ());
-
-
-
-  NS_LOG_INFO ("Create Device");
-  EmuFdNetDeviceHelper emu;
-  emu.SetDeviceName ("eth0");
-  NetDeviceContainer devices = emu.Install (csmaNodes.Get(0));
-
-  Ptr<NetDevice> device = devices.Get (0);
-  device->SetAttribute ("Address", localMac);
-
-  NS_LOG_INFO ("Create IPv4 Interface");
-  Ptr<Ipv4> ipv4 = csmaNodes.Get(0)->GetObject<Ipv4> ();
-  uint32_t interface = ipv4->AddInterface (device);
-  Ipv4InterfaceAddress phantomAddress = Ipv4InterfaceAddress (localIp, localMask);
-  ipv4->AddAddress (interface, phantomAddress);
-  ipv4->SetMetric (interface, 1);
-  ipv4->SetUp (interface);
   /////////////////////////////////////////////////////////////
+
+
 
   /////////////////////////////////////////////////////////////
   //
@@ -205,8 +221,8 @@ main (int argc, char *argv[])
 	// Create a Chai3dServer application on node one.
 	//
 
-  uint16_t port = 1234;  // well-known echo port number
-  Chai3dServerHelper chai3dServer (port,staInterfaces.GetAddress(0),port);
+  uint16_t port = 4444;  // well-known echo port number
+  Chai3dServerHelper chai3dServer (port,Address(Ipv4Address("10.1.2.1")),1234);
   chai3dServer.SetAttribute ("Chai3dWrapper", StringValue ("/home/matthias/Development/chai3d-3.0.0/bin/04-shapes"));
   ApplicationContainer apps = chai3dServer.Install (wifiStaNodes.Get(2));
   apps.Start (Seconds (1.0));
@@ -220,11 +236,19 @@ main (int argc, char *argv[])
   chai3Dapps.Start(Seconds(1.0));
   chai3Dapps.Stop(Seconds(120));
 
-
+//  HapticOperatorHelper client (staInterfaces.GetAddress(2), port);
+//  client.SetAttribute ("PositionFile", StringValue ("src/Kcl-Haptic-Sim/test/position.txt"));
+//  client.SetAttribute ("VelocityFile", StringValue ("src/Kcl-Haptic-Sim/test/fakeVelocity.txt"));
+//  client.SetAttribute ("SamplingIntervalSeconds", DoubleValue (0.001));
+//  //client.SetAttribute ("ApplyDataReduction", BooleanValue(true));
+//  //client.SetAttribute ("FileType", StringValue ("POSITION"));
+//  apps = client.Install (csmaNodes.Get (0));
+//  apps.Start (Seconds (0.02));
+//  apps.Stop (Seconds (30.0));
 
   /////////////////////////////////////////////////////
 
-  Ipv4GlobalRoutingHelper::PopulateRoutingTables ();
+
 
   Simulator::Stop (Seconds (100.0));
 
