@@ -20,6 +20,9 @@
 
 #include <string>
 
+// Idea and code to create the ethernet network is based on:
+// https://www2.nsnam.org/doxygen/second_8py_source.html
+
 // Network topology
 //
 //       n0    n1   n2   n3
