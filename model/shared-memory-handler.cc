@@ -4,6 +4,14 @@
  *  Created on: 18 Aug 2016
  *      Author: matthias
  */
+// idea and code based on:
+// https://www.cs.cf.ac.uk/Dave/C/node27.html
+// and
+// http://web.archive.org/web/20150524005553/http://advancedlinuxprogramming.com/alp-folder/alp-ch05-ipc.pdf
+// and
+// http://stackoverflow.com/questions/8359322/how-to-share-semaphores-between-processes-using-shared-memory
+// and
+// http://www.csc.villanova.edu/~mdamian/threads/posixsem.html
 
 #include "shared-memory-handler.h"
 
