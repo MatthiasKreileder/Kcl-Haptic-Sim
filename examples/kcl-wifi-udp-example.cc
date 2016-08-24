@@ -14,6 +14,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+// Idea and code to create the wifi + ethernet network is based on:
+// https://www2.nsnam.org/doxygen/third_8cc_source.html
+
 #include "ns3/core-module.h"
 #include "ns3/point-to-point-module.h"
 #include "ns3/network-module.h"
