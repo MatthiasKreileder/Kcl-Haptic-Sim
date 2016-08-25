@@ -4,7 +4,9 @@
  *  Created on: 17 Aug 2016
  *      Author: matthias
  */
-
+//
+// Code and idea based on: https://www.nsnam.org/doxygen/udp-echo-helper_8cc_source.html
+//
 #ifndef SRC_KCL_HAPTIC_SIM_HELPER_TCP_HAPTIC_TELE_OPERATOR_HELPER_H_
 #define SRC_KCL_HAPTIC_SIM_HELPER_TCP_HAPTIC_TELE_OPERATOR_HELPER_H_
 
