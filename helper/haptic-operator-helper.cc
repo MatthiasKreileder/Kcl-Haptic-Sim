@@ -4,7 +4,9 @@
  *  Created on: 13 Jul 2016
  *      Author: matthias
  */
-
+//
+// Code and idea based on: https://www.nsnam.org/doxygen/udp-echo-helper_8cc_source.html
+//
 #include "haptic-operator-helper.h"
 
 #include "haptic-operator-helper.h"
