@@ -1,9 +1,4 @@
-/*
- * sensor-data-sample.cc
- *
- *  Created on: 9 Jul 2016
- *      Author: matthias
- */
+
 
 #include "sensor-data-sample.h"
 
