@@ -1,10 +1,4 @@
-/*
- * kcl-lte-udp-example.cc
- *
- *  Created on: 19 Aug 2016
- *      Author: matthias
- */
- 
+
  // Idea and code to create the lte network is based on:
  // https://www.nsnam.org/doxygen/lena-simple-epc-emu_8cc_source.html
 
