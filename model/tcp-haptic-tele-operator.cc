@@ -1,9 +1,4 @@
-/*
- * tcp-haptic-tele-operator.cc
- *
- *  Created on: 17 Aug 2016
- *      Author: matthias
- */
+
 //
 //	Idea and code based on: https://www.nsnam.org/doxygen/udp-server_8cc_source.html
 //
