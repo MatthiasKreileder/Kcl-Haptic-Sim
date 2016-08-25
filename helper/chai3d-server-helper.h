@@ -1,5 +1,9 @@
 
 
+//
+// Code and idea based on: https://www.nsnam.org/doxygen/udp-echo-helper_8cc_source.html
+//
+
 #ifndef SRC_KCL_HAPTIC_SIM_HELPER_CHAI3D_SERVER_HELPER_H_
 #define SRC_KCL_HAPTIC_SIM_HELPER_CHAI3D_SERVER_HELPER_H_
 
