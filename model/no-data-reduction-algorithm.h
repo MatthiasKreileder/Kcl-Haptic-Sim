@@ -1,9 +1,4 @@
-/*
- * no-data-reduction-algorithm.h
- *
- *  Created on: 20 Jul 2016
- *      Author: matthias
- */
+
 
 #ifndef SRC_KCL_HAPTIC_SIM_MODEL_NO_DATA_REDUCTION_ALGORITHM_H_
 #define SRC_KCL_HAPTIC_SIM_MODEL_NO_DATA_REDUCTION_ALGORITHM_H_
