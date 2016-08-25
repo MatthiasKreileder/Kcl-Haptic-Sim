@@ -1,9 +1,4 @@
-/*
- * haptic-data-reduction-algorithm.h
- *
- *  Created on: 15 Aug 2016
- *      Author: matthias
- */
+
 
 #ifndef SRC_KCL_HAPTIC_SIM_MODEL_HAPTIC_DATA_REDUCTION_ALGORITHM_H_
 #define SRC_KCL_HAPTIC_SIM_MODEL_HAPTIC_DATA_REDUCTION_ALGORITHM_H_
