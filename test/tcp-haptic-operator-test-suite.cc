@@ -28,6 +28,8 @@
 #include "ns3/flow-monitor-module.h"
 #include <string>
 
+// Idea and code to create the point to point network is based on:
+// https://www2.nsnam.org/doxygen/first_8cc_source.html
 
 namespace ns3 {
 

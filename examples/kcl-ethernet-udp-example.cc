@@ -7,6 +7,9 @@
 
 #include <sstream>
 
+// Idea and code to create the ethernet networking structure is based on:
+// https://www.nsnam.org/doxygen/third_8cc_source.html
+
 #include "ns3/core-module.h"
 #include "ns3/new-module-helper.h"
 #include "ns3/log.h"

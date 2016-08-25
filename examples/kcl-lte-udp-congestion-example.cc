@@ -5,6 +5,9 @@
  *      Author: matthias
  */
 
+// Idea and code to create the lte example is based on:
+// https://www.nsnam.org/doxygen/lena-simple-epc-emu_8cc_source.html
+
 #include "ns3/lte-helper.h"
 #include "ns3/epc-helper.h"
 #include "ns3/core-module.h"
