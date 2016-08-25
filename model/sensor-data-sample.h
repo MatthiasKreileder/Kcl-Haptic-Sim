@@ -1,9 +1,4 @@
-/*
- * sensor-data-sample.h
- *
- *  Created on: 9 Jul 2016
- *      Author: matthias
- */
+
 
 #ifndef SRC_KCL_HAPTICS_MODEL_SENSOR_DATA_SAMPLE_H_
 #define SRC_KCL_HAPTICS_MODEL_SENSOR_DATA_SAMPLE_H_
