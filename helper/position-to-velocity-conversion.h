@@ -1,9 +1,4 @@
-/*
- * position-to-velocity-conversion.h
- *
- *  Created on: 17 Jul 2016
- *      Author: matthias
- */
+
 
 #ifndef SRC_KCL_HAPTIC_SIM_HELPER_POSITION_TO_VELOCITY_CONVERSION_H_
 #define SRC_KCL_HAPTIC_SIM_HELPER_POSITION_TO_VELOCITY_CONVERSION_H_
