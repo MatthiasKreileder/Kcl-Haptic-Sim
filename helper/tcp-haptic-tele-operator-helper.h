@@ -1,9 +1,4 @@
-/*
- * tcp-haptic-tele-operator-helper.h
- *
- *  Created on: 17 Aug 2016
- *      Author: matthias
- */
+
 //
 // Code and idea based on: https://www.nsnam.org/doxygen/udp-echo-helper_8cc_source.html
 //
