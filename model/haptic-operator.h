@@ -4,7 +4,9 @@
  *  Created on: 13 Jul 2016
  *      Author: matthias
  */
-
+//
+//	code and idea based on: https://www.nsnam.org/docs/release/3.16/doxygen/udp-echo-client_8cc_source.html
+//
 #ifndef SRC_KCL_HAPTIC_SIM_MODEL_HAPTIC_OPERATOR_H_
 #define SRC_KCL_HAPTIC_SIM_MODEL_HAPTIC_OPERATOR_H_
 
