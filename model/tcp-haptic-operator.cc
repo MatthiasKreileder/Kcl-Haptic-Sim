@@ -1,9 +1,4 @@
-/*
- * tcp-haptic-operator.cc
- *
- *  Created on: 17 Aug 2016
- *      Author: matthias
- */
+
 //
 //	Code and idea based on: https://www.nsnam.org/doxygen/udp-client_8cc_source.html
 //
