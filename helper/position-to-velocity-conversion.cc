@@ -1,9 +1,4 @@
-/*
- * position-to-velocity-conversion.cpp
- *
- *  Created on: 17 Jul 2016
- *      Author: matthias
- */
+
 
 #include "position-to-velocity-conversion.h"
 #include "ns3/log.h"
