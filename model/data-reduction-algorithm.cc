@@ -1,9 +1,4 @@
-/*
- * data-reduction-algorithm.cc
- *
- *  Created on: 20 Jul 2016
- *      Author: matthias
- */
+
 
 #include "data-reduction-algorithm.h"
 
