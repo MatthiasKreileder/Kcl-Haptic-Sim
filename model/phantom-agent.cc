@@ -1,4 +1,6 @@
-
+//
+// Code and idea bases on https://www.nsnam.org/doxygen/udp-echo-server_8cc_source.html
+//
 #include "ns3/log.h"
 #include "ns3/core-module.h"
 #include "ns3/network-module.h"
