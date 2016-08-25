@@ -1,9 +1,4 @@
-/*
- * shared-memory-handler.cc
- *
- *  Created on: 18 Aug 2016
- *      Author: matthias
- */
+
 // idea and code based on:
 // https://www.cs.cf.ac.uk/Dave/C/node27.html
 // and
