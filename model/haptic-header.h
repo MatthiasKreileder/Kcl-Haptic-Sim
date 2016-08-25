@@ -1,9 +1,4 @@
-/*
- * haptic-header.h
- *
- *  Created on: 11 Jul 2016
- *      Author: matthias
- */
+
 
 #ifndef SRC_KCL_HAPTIC_SIM_MODEL_HAPTIC_HEADER_H_
 #define SRC_KCL_HAPTIC_SIM_MODEL_HAPTIC_HEADER_H_
