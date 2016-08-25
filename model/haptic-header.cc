@@ -1,9 +1,4 @@
-/*
- * haptic-header.cpp
- *
- *  Created on: 11 Jul 2016
- *      Author: matthias
- */
+
 
 #include "haptic-header.h"
 #include "ns3/log.h"
