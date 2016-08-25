@@ -4,7 +4,9 @@
  *  Created on: 17 Aug 2016
  *      Author: matthias
  */
-
+//
+//	Idea and code based on: https://www.nsnam.org/doxygen/udp-server_8cc_source.html
+//
 #ifndef SRC_KCL_HAPTIC_SIM_MODEL_TCP_HAPTIC_TELE_OPERATOR_H_
 #define SRC_KCL_HAPTIC_SIM_MODEL_TCP_HAPTIC_TELE_OPERATOR_H_
 
