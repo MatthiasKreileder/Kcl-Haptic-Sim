@@ -1,4 +1,6 @@
-
+//
+// Code and idea bases on https://www.nsnam.org/doxygen/udp-echo-server_8cc_source.html
+//
 #ifndef SRC_KCL_HAPTIC_SIM_MODEL_PHANTOM_AGENT_H_
 #define SRC_KCL_HAPTIC_SIM_MODEL_PHANTOM_AGENT_H_
 
