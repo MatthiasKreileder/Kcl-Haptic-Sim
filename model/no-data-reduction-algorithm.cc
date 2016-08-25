@@ -1,9 +1,4 @@
-/*
- * no-data-reduction-algorithm.cc
- *
- *  Created on: 20 Jul 2016
- *      Author: matthias
- */
+
 
 #include "no-data-reduction-algorithm.h"
 
