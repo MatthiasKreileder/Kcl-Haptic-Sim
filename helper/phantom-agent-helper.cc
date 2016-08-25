@@ -4,7 +4,9 @@
  *  Created on: 8 Aug 2016
  *      Author: matthias
  */
-
+//
+// Code and idea based on: https://www.nsnam.org/doxygen/udp-echo-helper_8cc_source.html
+//
 #include "phantom-agent-helper.h"
 #include "../model/phantom-agent.h"
 #include "ns3/application-container.h"
