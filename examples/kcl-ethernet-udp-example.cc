@@ -1,9 +1,3 @@
-/*
- * kcl-ethernet-udp-example.cc
- *
- *  Created on: 18 Aug 2016
- *      Author: matthias
- */
 
 #include <sstream>
 
