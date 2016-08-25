@@ -1,9 +1,4 @@
-/*
- * shared-memory-handler.h
- *
- *  Created on: 18 Aug 2016
- *      Author: matthias
- */
+
 
 #ifndef SRC_KCL_HAPTIC_SIM_MODEL_SHARED_MEMORY_HANDLER_H_
 #define SRC_KCL_HAPTIC_SIM_MODEL_SHARED_MEMORY_HANDLER_H_
