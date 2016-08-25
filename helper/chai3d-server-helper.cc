@@ -5,6 +5,10 @@
  *      Author: matthias
  */
 
+//
+// Code and idea based on: https://www.nsnam.org/doxygen/udp-echo-helper_8cc_source.html
+//
+
 #include "chai3d-server-helper.h"
 #include "../model/chai3d-server.h"
 #include "ns3/uinteger.h"
