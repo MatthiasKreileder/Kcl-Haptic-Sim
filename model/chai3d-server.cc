@@ -4,7 +4,9 @@
  *  Created on: 25 Jul 2016
  *      Author: matthias
  */
-
+//
+// Code and idea bases on https://www.nsnam.org/doxygen/udp-echo-server_8cc_source.html
+//
 #include "chai3d-server.h"
 #include "haptic-header.h"
 
