@@ -11,7 +11,7 @@
 #include "ns3/uinteger.h"
 #include "ns3/packet.h"
 #include "ns3/udp-socket.h"
-
+#include <iostream>
 namespace ns3 {
 
 NS_LOG_COMPONENT_DEFINE ("Chai3dServer");
@@ -24,10 +24,17 @@ Chai3dServer::Chai3dServer() {
 	m_port = -1;
 	m_socket = 0;
 	m_nph = 0;
+
+//	namedPipes_lock.lock();
+//	namedPipes_lock.unlock();
+
+	m_sharedMemHandler = new SharedMemoryHandler();
+
 }
 
 Chai3dServer::~Chai3dServer() {
 	NS_LOG_FUNCTION(this);
+	delete m_sharedMemHandler;
 }
 
 TypeId
@@ -53,6 +60,16 @@ Chai3dServer::GetTypeId (void)
 				   MakeStringAccessor (&Chai3dServer::m_namedPipesFolder),
 				   MakeStringChecker()
 				   )
+	.AddAttribute ("PhantomAgentAddress",
+	               "The PhantomAgent Address",
+	               AddressValue (),
+	               MakeAddressAccessor (&Chai3dServer::m_phantomAgentAddress),
+	               MakeAddressChecker ())
+	.AddAttribute ("PhantomAgentPort",
+	               "The PhantomAgent port",
+	               UintegerValue (0),
+	               MakeUintegerAccessor (&Chai3dServer::m_phantomAgentPort),
+			       MakeUintegerChecker<uint16_t> ())
   ;
   return tid;
 }
@@ -73,22 +90,53 @@ Chai3dServer::HandleRead (Ptr<Socket> socket)
   Address from;
   while ((packet = socket->RecvFrom (from)))
     {
-
+	  NS_LOG_FUNCTION("Packet from: " << from);
 	  HapticHeader hapticHeader;
 
 	  packet->RemoveHeader(hapticHeader);
 
-	  NS_LOG_DEBUG(hapticHeader.GetHapticMessage());
+	  //NS_LOG_DEBUG(hapticHeader.GetHapticMessage());
 
 	  std::string s = hapticHeader.GetHapticMessage();
 
-	  NS_LOG_DEBUG("Sending haptic message to chai3d");
+	  //NS_LOG_DEBUG("Sending haptic message to chai3d");
 
-	  m_nph->SafeWrite(s);
+	  //m_nph->SafeWrite(s);
 
-	  std::string msg_from_chai3d;
-	  m_nph->SafeRead(msg_from_chai3d);
-	  NS_LOG_DEBUG("Received " << msg_from_chai3d);
+	  ////////////////////////////////////////////////////
+	  m_sharedMemHandler->KclSafeWrite(s);
+	  std::string answer;
+	  //sleep(0.0001);
+	  m_sharedMemHandler->KclSafeRead(answer);
+
+
+	  /*
+	   * Extract message
+	   */
+	  std::size_t firstHashTag = answer.find_first_of('#');
+	  if(firstHashTag == 0){
+		  // no force sample from chai3d available => nothing for us to do
+
+		 NS_LOG_DEBUG("Nothing to do in this cycle");
+	  }
+	  else{
+		  std::string msg_from_chai3d =  answer.substr(0,firstHashTag);
+
+		  NS_LOG_DEBUG("Received " << msg_from_chai3d);
+
+		  HapticHeader hapticHeaderReturnPacket;
+		  hapticHeaderReturnPacket.SetHapticMessage(msg_from_chai3d);
+
+		  Ptr<Packet> packetForPhantom = Create<Packet> ();
+		  packetForPhantom->AddHeader(hapticHeaderReturnPacket);
+
+
+		  m_socket->SendTo(packetForPhantom,0,from);
+
+	  }
+
+	  ////////////////////////////////////////////////////
+
 
 
     }

@@ -1,5 +1,4 @@
-/*
- * chai3d-server.h
+/* * chai3d-server.h
  *
  *  Created on: 25 Jul 2016
  *      Author: matthias
@@ -24,9 +23,17 @@
 #include <stdlib.h>
 #include <sstream>
 
+//#include "boost/thread.hpp"
+//#include <boost/asio.hpp>
+//#include <boost/shared_ptr.hpp>
+//#include <boost/bind.hpp>
+
 #include "named-pipe-handler.h"
+#include "shared-memory-handler.h"
 
 namespace ns3 {
+
+//static boost::mutex namedPipes_lock;
 
 class Chai3dServer : public Application {
 public:
@@ -84,7 +91,11 @@ private:
   Ptr<Socket> m_socket; //!< IPv4 Socket
   Address m_local; //!< local multicast address
 
+  Address m_phantomAgentAddress; //!< Remote peer address
+  uint16_t m_phantomAgentPort; //!< Remote peer port
+
   NamedPipeHandler* m_nph;
+  SharedMemoryHandler* m_sharedMemHandler;
 
 };
 

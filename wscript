@@ -1,5 +1,10 @@
 ## -*- Mode: python; py-indent-offset: 4; indent-tabs-mode: nil; coding: utf-8; -*-
 
+REQUIRED_BOOST_LIBS = ['system', 'signals', 'filesystem', 'thread']
+
+def required_boost_libs(conf):
+    conf.env['REQUIRED_BOOST_LIBS'] += REQUIRED_BOOST_LIBS
+
 def build(bld):
     obj = bld.create_ns3_module('Kcl-Haptic-Sim', ['internet'])
     obj.source = [
@@ -12,17 +17,26 @@ def build(bld):
        'model/haptic-tele-operator.cc',
        'model/chai3d-server.cc',
        'model/named-pipe-handler.cc',
+       'model/phantom-agent.cc',
        'model/haptic-data-reduction-algorithm.cc',
+       'model/shared-memory-handler.cc',
        'model/tcp-haptic-operator.cc',
        'model/tcp-haptic-tele-operator.cc',
        'helper/haptic-operator-helper.cc',
        'helper/haptic-tele-operator-helper.cc',
        'helper/position-to-velocity-conversion.cc',
        'helper/chai3d-server-helper.cc',
+       'helper/phantom-agent-helper.cc',
        'helper/tcp-haptic-operator-helper.cc',
        'helper/tcp-haptic-tele-operator-helper.cc',
         ]
-    obj.cxxflags = ['-std=c++11']
+    obj.cxxflags = ['-std=c++11',
+    				'-I /home/matthias/Development/install_dir/boost_install_dir/include/',
+    				'-L /home/matthias/Development/install_dir/boost_install_dir/lib',
+    				'-l boost_system',
+    				'-l boost_thread',
+    				'-L /lib64',
+    				'-l pthread']
 
     module_test = bld.create_ns3_module_test_library('Kcl-Haptic-Sim')
     module_test.source = [
@@ -49,15 +63,19 @@ def build(bld):
        'model/haptic-tele-operator.h',
        'model/chai3d-server.h',
        'model/named-pipe-handler.h',
+       'model/phantom-agent.h',
        'model/haptic-data-reduction-algorithm.h',
+       'model/shared-memory-handler.h',
        'model/tcp-haptic-operator.h',
        'model/tcp-haptic-operator.h',
        'helper/haptic-operator-helper.h',
        'helper/haptic-tele-operator-helper.h',
        'helper/position-to-velocity-conversion.h',
        'helper/chai3d-server-helper.h',
+       'helper/phantom-agent-helper.h',
        'helper/tcp-haptic-operator-helper.h',
-       'helper/tcp-haptic-tele-operator-helper.h',
+       'helper/tcp-haptic-tele-operator-helper.h'
         ]
 
-    
+    if bld.env.ENABLE_EXAMPLES:
+        bld.recurse('examples')    

@@ -12,8 +12,11 @@
 #include "ns3/csma-module.h"
 #include "ns3/applications-module.h"
 #include "ns3/internet-module.h"
-
+#include "ns3/point-to-point-module.h"
 #include <string>
+
+// Idea and code to create the ethernet network is based on:
+// https://www2.nsnam.org/doxygen/second_8py_source.html
 
 // Network topology
 //
@@ -45,6 +48,7 @@ Chai3dServerBaseTestCase::DoRun()
 {
 	  GlobalValue::Bind ("SimulatorImplementationType", StringValue ("ns3::RealtimeSimulatorImpl"));
 	  GlobalValue::Bind ("ChecksumEnabled", BooleanValue (true));
+
 	//
 	// Allow the user to override any of the defaults and the above Bind() at
 	// run-time, via command-line arguments
@@ -56,7 +60,7 @@ Chai3dServerBaseTestCase::DoRun()
 	//
 
 	  NodeContainer n;
-	  n.Create (4);
+	  n.Create (2);
 
 	  InternetStackHelper internet;
 	  internet.Install (n);
@@ -65,22 +69,30 @@ Chai3dServerBaseTestCase::DoRun()
 	//
 	// Explicitly create the channels required by the topology (shown above).
 	//
-	  CsmaHelper csma;
-	  csma.SetChannelAttribute ("DataRate", DataRateValue (DataRate (5000000)));
-	  csma.SetChannelAttribute ("Delay", TimeValue (MilliSeconds (1)));
-	  csma.SetDeviceAttribute ("Mtu", UintegerValue (1400));
-	  NetDeviceContainer d = csma.Install (n);
+//	  CsmaHelper csma;
+//	  csma.SetChannelAttribute ("DataRate", DataRateValue (DataRate (5000000)));
+//	  csma.SetChannelAttribute ("Delay", TimeValue (MilliSeconds (100)));
+//	  csma.SetDeviceAttribute ("Mtu", UintegerValue (1400));
+//	  NetDeviceContainer d = csma.Install (n);
+
+	  PointToPointHelper pointToPoint;
+	  pointToPoint.SetDeviceAttribute ("DataRate", StringValue ("5Mbps"));
+	  pointToPoint.SetChannelAttribute ("Delay", StringValue ("2ms"));
+	  NetDeviceContainer d = pointToPoint.Install (n);
+
 
 	//
 	// We've got the "hardware" in place.  Now we need to add IP addresses.
 	//
 
+	  Address peerAddress;
 	  if (useV6 == false)
 	    {
 	      Ipv4AddressHelper ipv4;
 	      ipv4.SetBase ("10.1.1.0", "255.255.255.0");
 	      Ipv4InterfaceContainer i = ipv4.Assign (d);
 	      serverAddress = Address(i.GetAddress (1));
+	      peerAddress = Address(i.GetAddress (0));
 	    }
 	  else
 	    {
@@ -88,6 +100,7 @@ Chai3dServerBaseTestCase::DoRun()
 	      ipv6.SetBase ("2001:0000:f00d:cafe::", Ipv6Prefix (64));
 	      Ipv6InterfaceContainer i6 = ipv6.Assign (d);
 	      serverAddress = Address(i6.GetAddress (1,1));
+	      peerAddress = Address(i6.GetAddress (0,0));
 	    }
 
 
@@ -96,30 +109,34 @@ Chai3dServerBaseTestCase::DoRun()
 	//
 	  double interPacketInterval = 0.001;
 	  uint16_t port = 9;  // well-known echo port number
-	  Chai3dServerHelper server (port);
+	  Chai3dServerHelper server (port,peerAddress,1234);
 	  server.SetAttribute ("Chai3dWrapper", StringValue ("/home/matthias/Development/chai3d-3.0.0/bin/04-shapes"));
 	  ApplicationContainer apps = server.Install (n.Get (1));
 	  apps.Start (Seconds (1.0));
-	  apps.Stop (Seconds (30.0));
+	  apps.Stop (Seconds (14.0));
+
 
 	//
 	// Create a HapticOperator application to send UDP datagrams from node zero to
 	// node one.
 	//
 	  HapticOperatorHelper client (serverAddress, port);
-	  client.SetAttribute ("FileName", StringValue ("src/Kcl-Haptic-Sim/test/position.txt"));
+	  //client.SetAttribute ("FileName", StringValue ("src/Kcl-Haptic-Sim/test/position.txt"));
 	  client.SetAttribute ("SamplingIntervalSeconds", DoubleValue( interPacketInterval));
-	  client.SetAttribute ("FileType", StringValue ("POSITION"));
+	  client.SetAttribute ("PositionFile", StringValue ("src/Kcl-Haptic-Sim/test-data/position.txt"));
+	  client.SetAttribute ("VelocityFile", StringValue ("src/Kcl-Haptic-Sim/test-data/velocity.txt"));
 	  client.SetAttribute ("ApplyDataReduction", BooleanValue (true));
 	  apps = client.Install (n.Get (0));
 	  apps.Start (Seconds (2.0));
-	  apps.Stop (Seconds (20.0));
+	  apps.Stop (Seconds (13.0));
+
 
 
 	//
 	// Now, do the actual simulation.
 	//
-	  Simulator::Stop(Seconds(30));
+
+	  Simulator::Stop(Seconds(15));
 	  Simulator::Run ();
 
 	  Simulator::Destroy ();

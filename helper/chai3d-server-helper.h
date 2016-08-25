@@ -22,7 +22,7 @@ public:
    *
    * \param port The port the server will wait on for incoming packets
    */
-	Chai3dServerHelper (uint16_t port);
+	Chai3dServerHelper (uint16_t port, Address phantomAgentIp, uint16_t phantomAgentPort);
 
   /**
    * Record an attribute to be set in each Application after it is is created.

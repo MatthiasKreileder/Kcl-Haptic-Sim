@@ -12,10 +12,12 @@
 
 namespace ns3 {
 
-Chai3dServerHelper::Chai3dServerHelper (uint16_t port)
+Chai3dServerHelper::Chai3dServerHelper (uint16_t port, Address phantomAgentIp, uint16_t phantomAgentPort)
 {
   m_factory.SetTypeId (Chai3dServer::GetTypeId ());
   m_factory.Set ("Port", UintegerValue (port));
+  m_factory.Set ("PhantomAgentAddress", AddressValue(phantomAgentIp));
+  m_factory.Set ("PhantomAgentPort", UintegerValue(phantomAgentPort));
 }
 
 void

@@ -20,6 +20,9 @@
 
 #include <string>
 
+// Idea and code to create the ethernet network is based on:
+// https://www2.nsnam.org/doxygen/second_8py_source.html
+
 // Network topology
 //
 //       n0    n1   n2   n3
@@ -105,7 +108,7 @@ HapticOperatorBaseTestCase::DoRun()
 	  apps.Stop (Seconds (100.0));
 
 	//
-	// Create a UdpEchoClient application to send UDP datagrams from node zero to
+	// Create a HapticOperator application to send UDP datagrams from node zero to
 	// node one.
 	//
 
