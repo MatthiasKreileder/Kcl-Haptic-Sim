@@ -17,4 +17,7 @@ def build(bld):
     obj.source = 'kcl-wifi-udp-example.cc'
     
     obj = bld.create_ns3_program('kcl-lte-udp-congestion-example', ['Kcl-Haptic-Sim','lte','flow-monitor','core', 'point-to-point', 'csma', 'wifi', 'internet', 'applications'])
-    obj.source = 'kcl-lte-udp-congestion-example.cc'    
+    obj.source = 'kcl-lte-udp-congestion-example.cc'
+    
+    obj = bld.create_ns3_program('kcl-wifi-error-model-demo', ['Kcl-Haptic-Sim','flow-monitor','fd-net-device','core', 'point-to-point', 'csma', 'wifi', 'internet', 'applications'])
+    obj.source = 'kcl-wifi-error-model-demo.cc'    
