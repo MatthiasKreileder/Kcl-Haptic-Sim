@@ -70,7 +70,7 @@ main (int argc, char *argv[])
 	  bool tracing = false;
 
 	  std::string fileName = "demo.xml";
-	  std::string protocol = "UDP";
+
 	  bool applyReduction = false;
 	  bool errors = false;
 
@@ -81,14 +81,14 @@ main (int argc, char *argv[])
 	  cmd.AddValue ("verbose", "Tell echo applications to log if true", verbose);
 	  cmd.AddValue ("tracing", "Enable pcap tracing", tracing);
 	  cmd.AddValue ("fileName","FlowMonitor's xml output file name",fileName);
-	  cmd.AddValue ("protocol","The transport layer protocol for the haptic apps",protocol);
+
 	  cmd.AddValue ("applyReduction","Set to true if you want to apply data reduction",applyReduction);
 	  cmd.AddValue ("errors","Enabling this will lead to tx and rx error on the csma net device",errors);
 
 	  cmd.Parse (argc,argv);
 
 	  NS_LOG_DEBUG("Simulation config:");
-	  NS_LOG_DEBUG("Transport Layer protocol: " << protocol);
+
 	  if (applyReduction){
 		  NS_LOG_DEBUG("Data reduction: enabled");
 	  }
@@ -203,22 +203,6 @@ main (int argc, char *argv[])
 	  //
 	  ////////////////////////////////////////////////////////////////////////////////
 
-//	  UdpEchoServerHelper echoServer (9);
-//
-//	  ApplicationContainer serverApps = echoServer.Install (csmaNodes.Get (nCsma));
-//	  serverApps.Start (Seconds (1.0));
-//	  serverApps.Stop (Seconds (10.0));
-//
-//	  UdpEchoClientHelper echoClient (csmaInterfaces.GetAddress (nCsma), 9);
-//	  echoClient.SetAttribute ("MaxPackets", UintegerValue (1));
-//	  echoClient.SetAttribute ("Interval", TimeValue (Seconds (1.0)));
-//	  echoClient.SetAttribute ("PacketSize", UintegerValue (1024));
-//
-//	  ApplicationContainer clientApps =
-//	    echoClient.Install (wifiStaNodes.Get (nWifi - 1));
-//	  clientApps.Start (Seconds (2.0));
-//	  clientApps.Stop (Seconds (10.0));
-
 	  NS_LOG_DEBUG("Installing a haptic operator on: " << csmaInterfaces.GetAddress(nCsma));
 	  Ptr<Ipv4> staNodeIp = wifiStaNodes.Get(nWifi -1)->GetObject<Ipv4>();
 
@@ -230,7 +214,7 @@ main (int argc, char *argv[])
 		  csmaDevices.Get (nCsma)->SetAttribute ("ReceiveErrorModel", PointerValue (em));
 	  }
 
-	  if (protocol.compare("UDP") == 0){
+
 		//
 		// Create a HapticTeleOperator application on node one.
 		//
@@ -244,13 +228,10 @@ main (int argc, char *argv[])
 		  apps.Start (Seconds (1.0));
 		  apps.Stop (Seconds (simTime));
 
-
-
 		//
 		// Create a HapticOperator application to send UDP datagrams from node zero to
 		// node one.
 		//
-
 
 		  HapticOperatorHelper client (csmaInterfaces.GetAddress (nCsma), port);
 		  client.SetAttribute ("SamplingIntervalSeconds", DoubleValue (interPacketInterval));
@@ -260,32 +241,6 @@ main (int argc, char *argv[])
 		  apps = client.Install (wifiStaNodes.Get (nWifi - 1));
 		  apps.Start (Seconds (2.0));
 		  apps.Stop (Seconds (simTime));
-
-
-	  }
-	  else if (protocol.compare("TCP") == 0){
-		  int hapticPort = 8080;
-		  TcpHapticTeleOperatorHelper tcpTeleHelper (hapticPort, Ipv4Address( staNodeIp->GetAddress(1,0).GetLocal()));
-		  tcpTeleHelper.SetAttribute("FileName",StringValue("src/Kcl-Haptic-Sim/test/test_force.txt"));
-		  tcpTeleHelper.SetAttribute ("SamplingIntervalSeconds", DoubleValue (0.001));
-		  tcpTeleHelper.SetAttribute ("ApplyDataReduction", BooleanValue (applyReduction));
-		  ApplicationContainer tcpTeleApps = tcpTeleHelper.Install(csmaNodes.Get (nCsma));
-		  tcpTeleApps.Start (Seconds(1));
-		  tcpTeleApps.Stop (Seconds (simTime));
-
-		  TcpHapticOperatorHelper tcpHOP (Address(csmaInterfaces.GetAddress (nCsma)),hapticPort);
-		  tcpHOP.SetAttribute ("PositionFile", StringValue ("src/Kcl-Haptic-Sim/test/test_pos.txt"));
-		  tcpHOP.SetAttribute ("VelocityFile", StringValue ("src/Kcl-Haptic-Sim/test/test_fakeVelo.txt"));
-		  tcpHOP.SetAttribute ("SamplingIntervalSeconds", DoubleValue (0.001));
-		  tcpHOP.SetAttribute ("ApplyDataReduction", BooleanValue (applyReduction));
-		  ApplicationContainer apps = tcpHOP.Install (wifiStaNodes.Get (nWifi - 1));
-		  apps.Start (Seconds (2));
-		  apps.Stop (Seconds (simTime));
-	  }
-	  else{
-		  NS_LOG_DEBUG("Only UDP and TCP are currently supported as transport layer protocols");
-		  exit(1);
-	  }
 
 	  ////////////////////////////////////////////////////////////////////////////////
 	  //

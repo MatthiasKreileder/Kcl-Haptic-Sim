@@ -116,6 +116,11 @@ main (int argc, char *argv[])
   p2ph.SetDeviceAttribute ("Mtu", UintegerValue (1500));
   p2ph.SetChannelAttribute ("Delay", TimeValue (Seconds (0.010)));
   NetDeviceContainer internetDevices = p2ph.Install (pgw, remoteHost);
+
+//  Ptr<RateErrorModel> em = CreateObject<RateErrorModel> ();
+//  em->SetAttribute ("ErrorRate", DoubleValue (0.0005));
+//  internetDevices.Get (1)->SetAttribute ("ReceiveErrorModel", PointerValue (em));
+
   Ipv4AddressHelper ipv4h;
   ipv4h.SetBase ("1.0.0.0", "255.0.0.0");
   Ipv4InterfaceContainer internetIpIfaces = ipv4h.Assign (internetDevices);
@@ -347,8 +352,8 @@ main (int argc, char *argv[])
   FlowMonitorHelper flowHelper;
   NodeContainer allNodes;
   allNodes.Add(remoteHost);
-  allNodes.Add(udpEchoRemoteHost);
-  allNodes.Add(ueNodes);
+  //allNodes.Add(udpEchoRemoteHost);
+  allNodes.Add(ueNodes.Get(0));
   flowMonitor = flowHelper.Install(allNodes);
 
   Simulator::Stop(Seconds(simTime));
