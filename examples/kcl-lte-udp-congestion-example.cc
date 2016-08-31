@@ -32,7 +32,7 @@ using namespace ns3;
 void assignBearer(Ptr<NetDevice> netDev, Ptr<LteHelper> lteHelper){
 	GbrQosInformation qos;
 
-	int gbr = 130;
+	int gbr = 30;
 	qos.gbrDl = gbr;  // bit/s, considering IP, UDP, RLC, PDCP header size
 	qos.gbrUl = gbr;
 	qos.mbrDl = qos.gbrDl;
@@ -59,8 +59,8 @@ NS_LOG_COMPONENT_DEFINE ("KclLteCongestionExample");
 int
 main (int argc, char *argv[])
 {
-  uint16_t numberOfUeTrafficGeneratorNodes = 20;
-  double simTime = 30.0;
+  uint16_t numberOfUeTrafficGeneratorNodes = 10;
+  double simTime = 5.0;
   double appStartTime = 2.0;
   double distance = 0.50;
   std::string protocol = "UDP";
@@ -233,7 +233,7 @@ main (int argc, char *argv[])
 
 	  int hapticPort = 4444;
 	  TcpHapticTeleOperatorHelper tcpTeleHelper (hapticPort, ueIpIface.GetAddress (0));
-	  tcpTeleHelper.SetAttribute("FileName",StringValue("src/Kcl-Haptic-Sim/test/force.txt"));
+	  tcpTeleHelper.SetAttribute("FileName",StringValue("src/Kcl-Haptic-Sim/test-data/force.txt"));
 	  /*
 	   * Un-comment if you want to apply data reduction
 	   */
@@ -243,8 +243,8 @@ main (int argc, char *argv[])
 	  tcpTeleApps.Stop (Seconds (simTime));
 
 	  TcpHapticOperatorHelper tcpHOP (remoteHostAddr,hapticPort);
-	  tcpHOP.SetAttribute ("PositionFile", StringValue ("src/Kcl-Haptic-Sim/test/position.txt"));
-	  tcpHOP.SetAttribute ("VelocityFile", StringValue ("src/Kcl-Haptic-Sim/test/velocity.txt"));
+	  tcpHOP.SetAttribute ("PositionFile", StringValue ("src/Kcl-Haptic-Sim/test-data/position.txt"));
+	  tcpHOP.SetAttribute ("VelocityFile", StringValue ("src/Kcl-Haptic-Sim/test-data/velocity.txt"));
 	  tcpHOP.SetAttribute ("SamplingIntervalSeconds", DoubleValue (0.001));
 	  /*
 	   * Un-comment if you want to apply data reduction
@@ -354,7 +354,8 @@ main (int argc, char *argv[])
   Simulator::Stop(Seconds(simTime));
   Simulator::Run();
 
-  ss << "InterPacketMilliseconds=" << interPacketInterval;
+  flowMonitor->CheckForLostPackets(Seconds(0));
+  ss << "-InterPacketMilliseconds=" << interPacketInterval;
   ss << "-Nodes=" << numberOfUeTrafficGeneratorNodes;
   ss << "-example.xml";
   flowMonitor->SerializeToXmlFile(ss.str(), true, true);

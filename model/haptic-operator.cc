@@ -128,7 +128,7 @@ HapticOperator::StartApplication (void)
   NS_LOG_FUNCTION (this);
 
   if (m_useDataReductionAlgorithm){
-	  m_reduction = std::unique_ptr<HapticDataReductionAlgorithm>{new  HapticDataReductionAlgorithm(0.05)};
+	  m_reduction = std::unique_ptr<HapticDataReductionAlgorithm>{new  HapticDataReductionAlgorithm(0.2)};
   }
 
   if (m_socket == 0)
@@ -202,16 +202,23 @@ HapticOperator::Send (void)
 	  //
 	  NS_LOG_DEBUG("SensorDataContent: " << sds.getSensorDataString());
 
+
 	  if (m_useDataReductionAlgorithm){
 		  // check if we need to transmit this sample - the algorithm works with velocity samples
+
+		  NS_LOG_DEBUG("Apply reduction");
 		  SensorDataSample velocity;
 		  m_hapticFileSensor->GetNextSensorDataSample(velocity,HapticFileSensor::VELOCITY);
 		  if (!m_reduction->needsToBeTransmitted(velocity.getSensorDataVector())){
 			  m_sendEvent = Simulator::Schedule (Seconds( m_interval), &HapticOperator::Send, this);
+			  NS_LOG_DEBUG("Does not need to be transmitted");
 			  return;
 		  }
 
 
+	  }
+	  else{
+		  NS_LOG_DEBUG("DISABLED REDUCTION ALGO");
 	  }
 	  //
 	  //	Wrap it in a HapticHeader to prepare data to be

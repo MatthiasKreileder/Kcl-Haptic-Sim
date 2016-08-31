@@ -28,9 +28,13 @@
 #include "ns3/emu-fd-net-device-helper.h"
 #include "ns3/haptic-operator-helper.h"
 #include "ns3/haptic-tele-operator-helper.h"
+#include "ns3/tcp-haptic-operator-helper.h"
+#include "ns3/tcp-haptic-tele-operator-helper.h"
+
 #include "ns3/chai3d-server-helper.h"
 #include "ns3/phantom-agent-helper.h"
 #include "ns3/flow-monitor-module.h"
+#include <string>
 // Default Network Topology
 //
 // Number of wifi or csma nodes can be increased up to 250
@@ -59,18 +63,38 @@ NS_LOG_COMPONENT_DEFINE ("KclWifiErrorModelExample");
 int 
 main (int argc, char *argv[])
 {
+	int simTime = 10;
 	  bool verbose = true;
 	  uint32_t nCsma = 3;
 	  uint32_t nWifi = 3;
 	  bool tracing = false;
+
+	  std::string fileName = "demo.xml";
+	  std::string protocol = "UDP";
+	  bool applyReduction = false;
+	  bool errors = false;
+
 
 	  CommandLine cmd;
 	  cmd.AddValue ("nCsma", "Number of \"extra\" CSMA nodes/devices", nCsma);
 	  cmd.AddValue ("nWifi", "Number of wifi STA devices", nWifi);
 	  cmd.AddValue ("verbose", "Tell echo applications to log if true", verbose);
 	  cmd.AddValue ("tracing", "Enable pcap tracing", tracing);
+	  cmd.AddValue ("fileName","FlowMonitor's xml output file name",fileName);
+	  cmd.AddValue ("protocol","The transport layer protocol for the haptic apps",protocol);
+	  cmd.AddValue ("applyReduction","Set to true if you want to apply data reduction",applyReduction);
+	  cmd.AddValue ("errors","Enabling this will lead to tx and rx error on the csma net device",errors);
 
 	  cmd.Parse (argc,argv);
+
+	  NS_LOG_DEBUG("Simulation config:");
+	  NS_LOG_DEBUG("Transport Layer protocol: " << protocol);
+	  if (applyReduction){
+		  NS_LOG_DEBUG("Data reduction: enabled");
+	  }
+	  if (errors){
+		  NS_LOG_DEBUG ("Tx/Rx errors on the haptic teleoperator network device: enabled");
+	  }
 
 	  // Check for valid number of csma or wifi nodes
 	  // 250 should be enough, otherwise IP addresses
@@ -171,6 +195,8 @@ main (int argc, char *argv[])
 	  address.Assign (staDevices);
 	  address.Assign (apDevices);
 
+	  Ipv4GlobalRoutingHelper::PopulateRoutingTables ();
+
 	  ////////////////////////////////////////////////////////////////////////////////
 	  //
 	  //	Application layer
@@ -193,19 +219,30 @@ main (int argc, char *argv[])
 //	  clientApps.Start (Seconds (2.0));
 //	  clientApps.Stop (Seconds (10.0));
 
+	  NS_LOG_DEBUG("Installing a haptic operator on: " << csmaInterfaces.GetAddress(nCsma));
+	  Ptr<Ipv4> staNodeIp = wifiStaNodes.Get(nWifi -1)->GetObject<Ipv4>();
 
+	  NS_LOG_DEBUG("Installing a haptic teleoperator on: " << staNodeIp->GetAddress(1,0).GetLocal());
+
+	  if (errors){
+		  Ptr<RateErrorModel> em = CreateObject<RateErrorModel> ();
+		  em->SetAttribute ("ErrorRate", DoubleValue (0.01));
+		  csmaDevices.Get (nCsma)->SetAttribute ("ReceiveErrorModel", PointerValue (em));
+	  }
+
+	  if (protocol.compare("UDP") == 0){
 		//
 		// Create a HapticTeleOperator application on node one.
 		//
 		  double interPacketInterval = 0.001;
 		  uint16_t port = 9;  // well-known echo port number
 		  HapticTeleOperatorHelper server (port);
-		  server.SetAttribute("FileName", StringValue ("src/Kcl-Haptic-Sim/test/test_force.txt"));
+		  server.SetAttribute("FileName", StringValue ("src/Kcl-Haptic-Sim/test-data/force.txt"));
 		  server.SetAttribute ("SamplingIntervalSeconds", DoubleValue (interPacketInterval));
-		  server.SetAttribute ("ApplyDataReduction", BooleanValue (true));
+		  server.SetAttribute ("ApplyDataReduction", BooleanValue (applyReduction));
 		  ApplicationContainer apps = server.Install (csmaNodes.Get (nCsma));
 		  apps.Start (Seconds (1.0));
-		  apps.Stop (Seconds (3.0));
+		  apps.Stop (Seconds (simTime));
 
 
 
@@ -217,16 +254,38 @@ main (int argc, char *argv[])
 
 		  HapticOperatorHelper client (csmaInterfaces.GetAddress (nCsma), port);
 		  client.SetAttribute ("SamplingIntervalSeconds", DoubleValue (interPacketInterval));
-		  client.SetAttribute ("PositionFile", StringValue ("src/Kcl-Haptic-Sim/test/test_pos.txt"));
-		  client.SetAttribute ("VelocityFile", StringValue ("src/Kcl-Haptic-Sim/test/fakeVelocity.txt"));
-		  server.SetAttribute ("ApplyDataReduction", BooleanValue (true));
+		  client.SetAttribute ("PositionFile", StringValue ("src/Kcl-Haptic-Sim/test-data/position.txt"));
+		  client.SetAttribute ("VelocityFile", StringValue ("src/Kcl-Haptic-Sim/test-data/velocity.txt"));
+		  client.SetAttribute ("ApplyDataReduction", BooleanValue (applyReduction));
 		  apps = client.Install (wifiStaNodes.Get (nWifi - 1));
 		  apps.Start (Seconds (2.0));
-		  apps.Stop (Seconds (3.0));
+		  apps.Stop (Seconds (simTime));
 
-		  Ptr<RateErrorModel> em = CreateObject<RateErrorModel> ();
-		  em->SetAttribute ("ErrorRate", DoubleValue (0.001));
-		  csmaDevices.Get (nCsma)->SetAttribute ("ReceiveErrorModel", PointerValue (em));
+
+	  }
+	  else if (protocol.compare("TCP") == 0){
+		  int hapticPort = 8080;
+		  TcpHapticTeleOperatorHelper tcpTeleHelper (hapticPort, Ipv4Address( staNodeIp->GetAddress(1,0).GetLocal()));
+		  tcpTeleHelper.SetAttribute("FileName",StringValue("src/Kcl-Haptic-Sim/test/test_force.txt"));
+		  tcpTeleHelper.SetAttribute ("SamplingIntervalSeconds", DoubleValue (0.001));
+		  tcpTeleHelper.SetAttribute ("ApplyDataReduction", BooleanValue (applyReduction));
+		  ApplicationContainer tcpTeleApps = tcpTeleHelper.Install(csmaNodes.Get (nCsma));
+		  tcpTeleApps.Start (Seconds(1));
+		  tcpTeleApps.Stop (Seconds (simTime));
+
+		  TcpHapticOperatorHelper tcpHOP (Address(csmaInterfaces.GetAddress (nCsma)),hapticPort);
+		  tcpHOP.SetAttribute ("PositionFile", StringValue ("src/Kcl-Haptic-Sim/test/test_pos.txt"));
+		  tcpHOP.SetAttribute ("VelocityFile", StringValue ("src/Kcl-Haptic-Sim/test/test_fakeVelo.txt"));
+		  tcpHOP.SetAttribute ("SamplingIntervalSeconds", DoubleValue (0.001));
+		  tcpHOP.SetAttribute ("ApplyDataReduction", BooleanValue (applyReduction));
+		  ApplicationContainer apps = tcpHOP.Install (wifiStaNodes.Get (nWifi - 1));
+		  apps.Start (Seconds (2));
+		  apps.Stop (Seconds (simTime));
+	  }
+	  else{
+		  NS_LOG_DEBUG("Only UDP and TCP are currently supported as transport layer protocols");
+		  exit(1);
+	  }
 
 	  ////////////////////////////////////////////////////////////////////////////////
 	  //
@@ -234,7 +293,7 @@ main (int argc, char *argv[])
 	  //
 	  ////////////////////////////////////////////////////////////////////////////////
 
-	  Ipv4GlobalRoutingHelper::PopulateRoutingTables ();
+
 
 	  // Flow monitor
 	  Ptr<FlowMonitor> flowMonitor;
@@ -244,7 +303,7 @@ main (int argc, char *argv[])
 	  nc.Add(csmaNodes.Get (nCsma));
 	  flowMonitor = flowHelper.Install(nc);
 
-	  Simulator::Stop (Seconds (10.0));
+	  Simulator::Stop (Seconds (simTime));
 
 	  if (tracing == true)
 	    {
@@ -253,10 +312,13 @@ main (int argc, char *argv[])
 	      csma.EnablePcap ("third", csmaDevices.Get (0), true);
 	    }
 
+	  NS_LOG_DEBUG("Simulations runs ...");
 	  Simulator::Run ();
 
 	  flowMonitor->CheckForLostPackets(Seconds(0));
-	  flowMonitor->SerializeToXmlFile("msc-demo.xml", true, true);
+	  flowMonitor->SerializeToXmlFile(fileName, true, true);
+	  NS_LOG_DEBUG("... DONE");
+	  NS_LOG_DEBUG("For flow statistics see: " << fileName);
 	  Simulator::Destroy ();
 	  return 0;
 }

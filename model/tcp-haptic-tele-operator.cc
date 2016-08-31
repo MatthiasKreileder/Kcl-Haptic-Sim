@@ -148,6 +148,9 @@ TcpHapticTeleOperator::ReadSensorData ()
 				return;
 			 }
 		}
+		else{
+			NS_LOG_DEBUG("DISABLED Data Reduction");
+		}
 		  //
 		  //	We made it here => there is still data to send
 		  //
@@ -210,6 +213,7 @@ bool TcpHapticTeleOperator::HandleAcceptRequest (Ptr<Socket> socket, const Addre
 			  return false;;
 		  }
 
+	NS_LOG_DEBUG("Accepting request");
 	return true;
 }
 
